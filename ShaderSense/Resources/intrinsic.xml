@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<functions>
+  <word>abs</word>
+  <description>abs description</description>
+  <word>acos</word>
+  <description>acos description</description>
+  <word>all</word>
+  <description>all description</description>
+  <word>any</word>
+  <description>any description</description>
+  <word>asfloat</word>
+  <description>asfloat description</description>
+  <word>asin</word>
+  <description>asin description</description>
+  <word>asint</word>
+  <description>asint description</description>
+  <word>asuint</word>
+  <description>asuint description</description>
+  <word>atan</word>
+  <description>atan description</description>
+  <word>atan2</word>
+  <description>atan2 description</description>
+  <word>ceil</word>
+  <description>ceil description</description>
+  <word>clamp</word>
+  <description>clamp description</description>
+  <word>clip</word>
+  <description>clip description</description>
+  <word>cos</word>
+  <description>cos description</description>
+  <word>cosh</word>
+  <description>cosh description</description>
+  <word>cross</word>
+  <description>cross description</description>
+  <word>D3DCOLORtoUBYTE4</word>
+  <description>D3DCOLORtoUBYTE4 description</description>
+  <word>ddx</word>
+  <description>ddx description</description>
+  <word>ddy</word>
+  <description>ddy description</description>
+  <word>degrees</word>
+  <description>degrees description</description>
+  <word>determinant</word>
+  <description>determinant description</description>
+  <word>distance</word>
+  <description>distance description</description>
+  <word>dot</word>
+  <description>dot description</description>
+  <word>exp</word>
+  <description>exp description</description>
+  <word>exp2</word>
+  <description>exp2 description</description>
+  <word>faceforward</word>
+  <description>faceforward description</description>
+  <word>floor</word>
+  <description>floor description</description>
+  <word>fmod</word>
+  <description>fmod description</description>
+  <word>frac</word>
+  <description>frac description</description>
+  <word>frexp</word>
+  <description>frexp description</description>
+  <word>fwidth</word>
+  <description>fwidth description</description>
+  <word>GetRenderTargetSampleCount</word>
+  <description>GetRenderTargetSampleCount description</description>
+  <word>GetRenderTargetSampePosition</word>
+  <description>GetRenderTargetSampePosition description</description>
+  <word>isfinite</word>
+  <description>isfinite description</description>
+  <word>isinf</word>
+  <description>isinf description</description>
+  <word>isnan</word>
+  <description>isnan description</description>
+  <word>ldexp</word>
+  <description>ldexp description</description>
+  <word>length</word>
+  <description>length description</description>
+  <word>lerp</word>
+  <description>lerp description</description>
+  <word>lit</word>
+  <description>lit description</description>
+  <word>log</word>
+  <description>log description</description>
+  <word>log10</word>
+  <description>log10 description</description>
+  <word>log2</word>
+  <description>log2 description</description>
+  <word>max</word>
+  <description>max description</description>
+  <word>min</word>
+  <description>min description</description>
+  <word>modf</word>
+  <description>modf description</description>
+  <word>mul</word>
+  <description>mul description</description>
+  <word>noise</word>
+  <description>noise description</description>
+  <word>normalize</word>
+  <description>normalize description</description>
+  <word>pow</word>
+  <description>pow description</description>
+  <word>radians</word>
+  <description>radians description</description>
+  <word>reflect</word>
+  <description>reflect description</description>
+  <word>refract</word>
+  <description>refract description</description>
+  <word>round</word>
+  <description>round description</description>
+  <word>rsqrt</word>
+  <description>rsqrt description</description>
+  <word>saturate</word>
+  <description>saturate description</description>
+  <word>sign</word>
+  <description>sign description</description>
+  <word>sin</word>
+  <description>sin description</description>
+  <word>sincos</word>
+  <description>sincos description</description>
+  <word>sinh</word>
+  <description>sinh description</description>
+  <word>smoothstep</word>
+  <description>smoothstep description</description>
+  <word>sqrt</word>
+  <description>sqrt description</description>
+  <word>step</word>
+  <description>step description</description>
+  <word>tan</word>
+  <description>tan description</description>
+  <word>tanh</word>
+  <description>tanh description</description>
+  <word>tex1D</word>
+  <description>tex1D description</description>
+  <word>tex1Dbias</word>
+  <description>tex1Dbias description</description>
+  <word>tex1Dgrad</word>
+  <description>tex1Dgrad description</description>
+  <word>tex1Dlod</word>
+  <description>tex1Dlod description</description>
+  <word>tex1Dproj</word>
+  <description>tex1Dproj description</description>
+  <word>tex2D</word>
+  <description>tex2D description</description>
+  <word>tex2Dbias</word>
+  <description>tex2Dbias description</description>
+  <word>tex2Dgrad</word>
+  <description>tex2Dgrad description</description>
+  <word>tex2Dlod</word>
+  <description>tex2Dlod description</description>
+  <word>tex2Dproj</word>
+  <description>tex2Dproj description</description>
+  <word>tex3D</word>
+  <description>tex3D description</description>
+  <word>tex3Dbias</word>
+  <description>tex3Dbias description</description>
+  <word>tex3Dgrad</word>
+  <description>tex3Dgrad description</description>
+  <word>tex3Dlod</word>
+  <description>tex3Dlod description</description>
+  <word>tex3Dproj</word>
+  <description>tex3Dproj description</description>
+  <word>texCUBE</word>
+  <description>texCUBE description</description>
+  <word>texCUBEbias</word>
+  <description>texCUBEbias description</description>
+  <word>texCUBEgrad</word>
+  <description>texCUBEgrad description</description>
+  <word>texCUBElod</word>
+  <description>texCUBElod description</description>
+  <word>texCUBEproj</word>
+  <description>texCUBEproj description</description>
+  <word>transpose</word>
+  <description>transpose description</description>
+  <word>trunc</word>
+  <description>trunc description</description>
+</functions>

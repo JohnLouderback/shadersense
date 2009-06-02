@@ -1,0 +1,454 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<keyword>
+  <word>BlendState</word>
+  <description>BlendState description</description>
+  <word>Bool</word>
+  <description>Bool description</description>
+  <word>Bool1</word>
+  <description>Bool1 description</description>
+  <word>Bool2</word>
+  <description>Bool2 description</description>
+  <word>Bool3</word>
+  <description>Bool3 description</description>
+  <word>Bool4</word>
+  <description>Bool4 description</description>
+  <word>Bool1x1</word>
+  <description>Bool1x1 description</description>
+  <word>Bool1x2</word>
+  <description>Bool1x2 description</description>
+  <word>Bool1x3</word>
+  <description>Bool1x3 description</description>
+  <word>Bool1x4</word>
+  <description>Bool1x4 description</description>
+  <word>Bool2x1</word>
+  <description>Bool2x1 description</description>
+  <word>Bool2x2</word>
+  <description>Bool2x2 description</description>
+  <word>Bool2x3</word>
+  <description>Bool2x3 description</description>
+  <word>Bool2x4</word>
+  <description>Bool2x4 description</description>
+  <word>Bool3x1</word>
+  <description>Bool3x1 description</description>
+  <word>Bool3x2</word>
+  <description>Bool3x2 description</description>
+  <word>Bool3x3</word>
+  <description>Bool3x3 description</description>
+  <word>Bool3x4</word>
+  <description>Bool3x4 description</description>
+  <word>Bool4x1</word>
+  <description>Bool4x1 description</description>
+  <word>Bool4x2</word>
+  <description>Bool4x2 description</description>
+  <word>Bool4x3</word>
+  <description>Bool4x3 description</description>
+  <word>Bool4x4</word>
+  <description>Bool4x4 description</description>
+  <word>Break</word>
+  <description>Break description</description>
+  <word>Buffer</word>
+  <description>Buffer description</description>
+  <word>CBuffer</word>
+  <description>CBuffer description</description>
+  <word>Compile</word>
+  <description>Compile description</description>
+  <word>Const</word>
+  <description>Const description</description>
+  <word>Continue</word>
+  <description>Continue description</description>
+  <word>DepthStencilState</word>
+  <description>DepthStencilState description</description>
+  <word>DepthStencilView</word>
+  <description>DepthStencilView description</description>
+  <word>Discard</word>
+  <description>Discard description</description>
+  <word>Do</word>
+  <description>Do description</description>
+  <word>Double</word>
+  <description>Double description</description>
+  <word>Double1</word>
+  <description>Double1 description</description>
+  <word>Double2</word>
+  <description>Double2 description</description>
+  <word>Double3</word>
+  <description>Double3 description</description>
+  <word>Double4</word>
+  <description>Double4 description</description>
+  <word>Double1x1</word>
+  <description>Double1x1 description</description>
+  <word>Double1x2</word>
+  <description>Double1x2 description</description>
+  <word>Double1x3</word>
+  <description>Double1x3 description</description>
+  <word>Double1x4</word>
+  <description>Double1x4 description</description>
+  <word>Double2x1</word>
+  <description>Double2x1 description</description>
+  <word>Double2x2</word>
+  <description>Double2x2 description</description>
+  <word>Double2x3</word>
+  <description>Double2x3 description</description>
+  <word>Double2x4</word>
+  <description>Double2x4 description</description>
+  <word>Double3x1</word>
+  <description>Double3x1 description</description>
+  <word>Double3x2</word>
+  <description>Double3x2 description</description>
+  <word>Double3x3</word>
+  <description>Double3x3 description</description>
+  <word>Double3x4</word>
+  <description>Double3x4 description</description>
+  <word>Double4x1</word>
+  <description>Double4x1 description</description>
+  <word>Double4x2</word>
+  <description>Double4x2 description</description>
+  <word>Double4x3</word>
+  <description>Double4x3 description</description>
+  <word>Double4x4</word>
+  <description>Double4x4 description</description>
+  <word>Else</word>
+  <description>Else description</description>
+  <word>Extern</word>
+  <description>Extern description</description>
+  <word>False</word>
+  <description>False description</description>
+  <word>Float</word>
+  <description>Float description</description>
+  <word>Float1</word>
+  <description>Float1 description</description>
+  <word>Float2</word>
+  <description>Float2 description</description>
+  <word>Float3</word>
+  <description>Float3 description</description>
+  <word>Float4</word>
+  <description>Float4 description</description>
+  <word>Float1x1</word>
+  <description>Float1x1 description</description>
+  <word>Float1x2</word>
+  <description>Float1x2 description</description>
+  <word>Float1x3</word>
+  <description>Float1x3 description</description>
+  <word>Float1x4</word>
+  <description>Float1x4 description</description>
+  <word>Float2x1</word>
+  <description>Float2x1 description</description>
+  <word>Float2x2</word>
+  <description>Float2x2 description</description>
+  <word>Float2x3</word>
+  <description>Float2x3 description</description>
+  <word>Float2x4</word>
+  <description>Float2x4 description</description>
+  <word>Float3x1</word>
+  <description>Float3x1 description</description>
+  <word>Float3x2</word>
+  <description>Float3x2 description</description>
+  <word>Float3x3</word>
+  <description>Float3x3 description</description>
+  <word>Float3x4</word>
+  <description>Float3x4 description</description>
+  <word>Float4x1</word>
+  <description>Float4x1 description</description>
+  <word>Float4x2</word>
+  <description>Float4x2 description</description>
+  <word>Float4x3</word>
+  <description>Float4x3 description</description>
+  <word>Float4x4</word>
+  <description>Float4x4 description</description>
+  <word>For</word>
+  <description>For description</description>
+  <word>GeometryShader</word>
+  <description>GeometryShader description</description>
+  <word>Half</word>
+  <description>Half description</description>
+  <word>Half1</word>
+  <description>Half1 description</description>
+  <word>Half2</word>
+  <description>Half2 description</description>
+  <word>Half3</word>
+  <description>Half3 description</description>
+  <word>Half4</word>
+  <description>Half4 description</description>
+  <word>Half1x1</word>
+  <description>Half1x1 description</description>
+  <word>Half1x2</word>
+  <description>Half1x2 description</description>
+  <word>Half1x3</word>
+  <description>Half1x3 description</description>
+  <word>Half1x4</word>
+  <description>Half1x4 description</description>
+  <word>Half2x1</word>
+  <description>Half2x1 description</description>
+  <word>Half2x2</word>
+  <description>Half2x2 description</description>
+  <word>Half2x3</word>
+  <description>Half2x3 description</description>
+  <word>Half2x4</word>
+  <description>Half2x4 description</description>
+  <word>Half3x1</word>
+  <description>Half3x1 description</description>
+  <word>Half3x2</word>
+  <description>Half3x2 description</description>
+  <word>Half3x3</word>
+  <description>Half3x3 description</description>
+  <word>Half3x4</word>
+  <description>Half3x4 description</description>
+  <word>Half4x1</word>
+  <description>Half4x1 description</description>
+  <word>Half4x2</word>
+  <description>Half4x2 description</description>
+  <word>Half4x3</word>
+  <description>Half4x3 description</description>
+  <word>Half4x4</word>
+  <description>Half4x4 description</description>
+  <word>If</word>
+  <description>If description</description>
+  <word>In</word>
+  <description>In description</description>
+  <word>Inline</word>
+  <description>Inline description</description>
+  <word>Inout</word>
+  <description>Inout description</description>
+  <word>Int</word>
+  <description>Int description</description>
+  <word>Int1</word>
+  <description>Int1 description</description>
+  <word>Int2</word>
+  <description>Int2 description</description>
+  <word>Int3</word>
+  <description>Int3 description</description>
+  <word>Int4</word>
+  <description>Int4 description</description>
+  <word>Int1x1</word>
+  <description>Int1x1 description</description>
+  <word>Int1x2</word>
+  <description>Int1x2 description</description>
+  <word>Int1x3</word>
+  <description>Int1x3 description</description>
+  <word>Int1x4</word>
+  <description>Int1x4 description</description>
+  <word>Int2x1</word>
+  <description>Int2x1 description</description>
+  <word>Int2x2</word>
+  <description>Int2x2 description</description>
+  <word>Int2x3</word>
+  <description>Int2x3 description</description>
+  <word>Int2x4</word>
+  <description>Int2x4 description</description>
+  <word>Int3x1</word>
+  <description>Int3x1 description</description>
+  <word>Int3x2</word>
+  <description>Int3x2 description</description>
+  <word>Int3x3</word>
+  <description>Int3x3 description</description>
+  <word>Int3x4</word>
+  <description>Int3x4 description</description>
+  <word>Int4x1</word>
+  <description>Int4x1 description</description>
+  <word>Int4x2</word>
+  <description>Int4x2 description</description>
+  <word>Int4x3</word>
+  <description>Int4x3 description</description>
+  <word>Int4x4</word>
+  <description>Int4x4 description</description>
+  <word>Matrix</word>
+  <description>Matrix description</description>
+  <word>Namespace</word>
+  <description>Namespace description</description>
+  <word>Nointerpolation</word>
+  <description>Nointerpolation description</description>
+  <word>Out</word>
+  <description>Out description</description>
+  <word>Pass</word>
+  <description>Pass description</description>
+  <word>PixelShader</word>
+  <description>PixelShader description</description>
+  <word>RasterizerState</word>
+  <description>RasterizerState description</description>
+  <word>RenderTargetView</word>
+  <description>RenderTargetView description</description>
+  <word>Return</word>
+  <description>Return description</description>
+  <word>Register</word>
+  <description>Register description</description>
+  <word>Sampler</word>
+  <description>Sampler description</description>
+  <word>Sampler1D</word>
+  <description>Sampler1D description</description>
+  <word>Sampler2D</word>
+  <description>Sampler2D description</description>
+  <word>Sampler3D</word>
+  <description>Sampler3D description</description>
+  <word>SamplerCUBE</word>
+  <description>SamplerCUBE description</description>
+  <word>Sampler_State</word>
+  <description>Sampler_State description</description>
+  <word>SamplerComparisonState</word>
+  <description>SamplerComparisonState description</description>
+  <word>Shared</word>
+  <description>Shared description</description>
+  <word>Stateblock</word>
+  <description>Stateblock description</description>
+  <word>Stateblock_state</word>
+  <description>Stateblock_state description</description>
+  <word>Static</word>
+  <description>Static description</description>
+  <word>String</word>
+  <description>String description</description>
+  <word>Struct</word>
+  <description>Struct description</description>
+  <word>Switch</word>
+  <description>Switch description</description>
+  <word>TBuffer</word>
+  <description>TBuffer description</description>
+  <word>Technique</word>
+  <description>Technique description</description>
+  <word>Technique10</word>
+  <description>Technique10 description</description>
+  <word>texture</word>
+  <description>texture description</description>
+  <word>Texture1D</word>
+  <description>Texture1D description</description>
+  <word>Texture1DArray</word>
+  <description>Texture1DArray description</description>
+  <word>Texture2D</word>
+  <description>Texture2D description</description>
+  <word>Texture2DArray</word>
+  <description>Texture2DArray description</description>
+  <word>Texture2DMS</word>
+  <description>Texture2DMS description</description>
+  <word>Texture2DMSArray</word>
+  <description>Texture2DMSArray description</description>
+  <word>Texture3D</word>
+  <description>Texture3D description</description>
+  <word>TextureCube</word>
+  <description>TextureCube description</description>
+  <word>TextureCubeArray</word>
+  <description>TextureCubeArray description</description>
+  <word>True</word>
+  <description>True description</description>
+  <word>Typedef</word>
+  <description>Typedef description</description>
+  <word>Uint</word>
+  <description>Uint description</description>
+  <word>Uint1</word>
+  <description>Uint1 description</description>
+  <word>Uint2</word>
+  <description>Uint2 description</description>
+  <word>Uint3</word>
+  <description>Uint3 description</description>
+  <word>Uint4</word>
+  <description>Uint4 description</description>
+  <word>Uint1x1</word>
+  <description>Uint1x1 description</description>
+  <word>Uint1x2</word>
+  <description>Uint1x2 description</description>
+  <word>Uint1x3</word>
+  <description>Uint1x3 description</description>
+  <word>Uint1x4</word>
+  <description>Uint1x4 description</description>
+  <word>Uint2x1</word>
+  <description>Uint2x1 description</description>
+  <word>Uint2x2</word>
+  <description>Uint2x2 description</description>
+  <word>Uint2x3</word>
+  <description>Uint2x3 description</description>
+  <word>Uint2x4</word>
+  <description>Uint2x4 description</description>
+  <word>Uint3x1</word>
+  <description>Uint3x1 description</description>
+  <word>Uint3x2</word>
+  <description>Uint3x2 description</description>
+  <word>Uint3x3</word>
+  <description>Uint3x3 description</description>
+  <word>Uint3x4</word>
+  <description>Uint3x4 description</description>
+  <word>Uint4x1</word>
+  <description>Uint4x1 description</description>
+  <word>Uint4x2</word>
+  <description>Uint4x2 description</description>
+  <word>Uint4x3</word>
+  <description>Uint4x3 description</description>
+  <word>Uint4x4</word>
+  <description>Uint4x4 description</description>
+  <word>Uniform</word>
+  <description>Uniform description</description>
+  <word>Vector</word>
+  <description>Vector description</description>
+  <word>VertexShader</word>
+  <description>VertexShader description</description>
+  <word>Void</word>
+  <description>Void description</description>
+  <word>Volatile</word>
+  <description>Volatile description</description>
+  <word>While</word>
+  <description>While description</description>
+
+  <word>auto</word>
+  <description>auto description</description>
+  <word>case</word>
+  <description>case description</description>
+  <word>catch</word>
+  <description>catch description</description>
+  <word>char</word>
+  <description>char description</description>
+  <word>class</word>
+  <description>class description</description>
+  <word>const_cast</word>
+  <description>const_cast description</description>
+  <word>default</word>
+  <description>default description</description>
+  <word>delete</word>
+  <description>delete description</description>
+  <word>dynamic_cast</word>
+  <description>dynamic_cast description</description>
+  <word>enum</word>
+  <description>enum description</description>
+  <word>explicit</word>
+  <description>explicit description</description>
+  <word>friend</word>
+  <description>friend description</description>
+  <word>goto</word>
+  <description>goto description</description>
+  <word>long</word>
+  <description>long description</description>
+  <word>mutable</word>
+  <description>mutable description</description>
+  <word>new</word>
+  <description>new description</description>
+  <word>operator</word>
+  <description>operator description</description>
+  <word>private</word>
+  <description>private description</description>
+  <word>protected</word>
+  <description>protected description</description>
+  <word>public</word>
+  <description>public description</description>
+  <word>reinterpret_cast</word>
+  <description>reinterpret_cast description</description>
+  <word>short</word>
+  <description>short description</description>
+  <word>signed</word>
+  <description>signed description</description>
+  <word>sizeof</word>
+  <description>sizeof description</description>
+  <word>static_cast</word>
+  <description>static_cast description</description>
+  <word>template</word>
+  <description>template description</description>
+  <word>this</word>
+  <description>this description</description>
+  <word>throw</word>
+  <description>throw description</description>
+  <word>try</word>
+  <description>try description</description>
+  <word>typename</word>
+  <description>typename description</description>
+  <word>union</word>
+  <description>union description</description>
+  <word>unsigned</word>
+  <description>unsigned description</description>
+  <word>using</word>
+  <description>using description</description>
+  <word>virtual</word>
+  <description>virtual description</description>
+</keyword>
