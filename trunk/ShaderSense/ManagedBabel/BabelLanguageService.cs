@@ -79,7 +79,10 @@ namespace Babel
 			{
 				src.LastParseTime = 0;
 			}
-			base.OnIdle(periodic);
+//            if (src.IsDirty)
+            {
+                base.OnIdle(periodic);
+            }
 		}
 
 
@@ -90,7 +93,7 @@ namespace Babel
 
 #if GARRETT
             System.IO.StreamWriter myStream;
-            myStream = new System.IO.StreamWriter("D:/Users/Garrett/Documents/CS429/myOutput.txt");
+            myStream = new System.IO.StreamWriter("E:/Users/Garrett/Documents/Projects/ShaderSense/myOutput.txt");
             Console.SetError(myStream);
 #endif
 			// req.DirtySpan seems to be set even though no changes have occurred
