@@ -144,14 +144,15 @@ SimpleDeclarations1
 
 SimpleDeclaration
     : SemiDeclaration ';'
+    | VariableDeclaration ';'		{ AddVarAsGlobal(); }
     | SemiDeclaration error ';'     { CallHdlr("Bad declaration, expected ';'", @2); }
     ;
 
 
 SemiDeclaration
-    : SemiDeclaration ',' IDENTIFIER                                    
-    | VariableDeclaration						{ AddVarAsGlobal(); }
-    | KWSTRUCT IDENTIFIER StructBlock			{ AddStructType($2); }
+/*    : SemiDeclaration ',' IDENTIFIER                                    
+    | VariableDeclaration						{ AddVarAsGlobal(); }*/
+    : KWSTRUCT IDENTIFIER StructBlock			{ AddStructType($2); }
     | KWSAMPLER IDENTIFIER '=' SamplerBlock		{ AddVariable($2, $1, @2);
 												  AddVarAsGlobal(); }
     | KWTYPEDEF Type IDENTIFIER					{ AddTypedefType($2, $3); }
@@ -162,6 +163,10 @@ VariableDeclaration
 	| TypeModifier Type IDENTIFIER Index					{ AddVariable($3, $2, @3); }
 	| StorageClass Type IDENTIFIER Index					{ AddVariable($3, $2, @3); }
 	| Type IDENTIFIER Index									{ AddVariable($2, $1, @2); }
+	| StorageClass TypeModifier KWSAMPLER IDENTIFIER Index		{ AddVariable($4, $3, @4); }
+	| TypeModifier KWSAMPLER IDENTIFIER Index					{ AddVariable($3, $2, @3); }
+	| StorageClass KWSAMPLER IDENTIFIER Index					{ AddVariable($3, $2, @3); }
+	| KWSAMPLER IDENTIFIER Index									{ AddVariable($2, $1, @2); }
 	;
 
 StorageClass                 
@@ -293,8 +298,7 @@ Type
 ScalarType
 	: KWINT      
     | KWBOOL
-    | KWFLOAT      { //test("scalartype", $1);
-     }
+    | KWFLOAT
     | KWHALF
     | KWDOUBLE
     | KWUINT
