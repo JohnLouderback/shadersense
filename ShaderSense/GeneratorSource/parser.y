@@ -245,6 +245,8 @@ ScalarArrayVals
 ScalarArray
 	: ScalarType '(' NumberVals ')'
 	| ScalarType '(' BoolVals ')'
+	| OpenBlock NumberVals CloseBlock
+	| OpenBlock BoolVals CloseBlock
 	;
 	
 NumberVals
@@ -409,7 +411,7 @@ SamplerBlockContents
 	;
 
 SamplerTexture
-	: KWUPPERTEXTURE '=' PPINCLFILE ';'
+	: KWUPPERTEXTURE '=' LT IDENTIFIER GT ';'		{ /* perhaps verify that the identifier is a texture */ }
 	;
 	
 SamplerStates
@@ -484,6 +486,7 @@ ForHeader
 
 ForBlock
     : AssignExpr ';' Expr ';' AssignExpr
+    | ScalarType AssignExpr ';' Expr ';' AssignExpr
     ;
 
 SemiStatement
@@ -514,6 +517,8 @@ EndArg
 
 AssignExpr
     : Identifier AssignOps Expr   
+    | Identifier INCR
+    | Identifier DECR
     | Expr
     ;
     

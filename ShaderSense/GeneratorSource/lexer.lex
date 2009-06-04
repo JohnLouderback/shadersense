@@ -350,7 +350,7 @@ VecMat	([1-4](([xX][1-4])?))?
 %%
 
 
-\<([a-zA-Z0-9\.\\\/])*\>		{ return (int)Tokens.PPINCLFILE; }
+/*\<([a-zA-Z0-9\.\\\/])*\>		{ return (int)Tokens.PPINCLFILE; }*/
 \"((\\([abfnrtv\\\"]|[0-7][0-7][0-7]|x[0-9a-fA-F]))|[^\"\\])*\"					{ return (int)Tokens.STRING; }
 /*[fF][lL][oO][aA][tT]{VecMat}		{ return (int)Tokens.KWFLOAT; }
 [iI][nN][tT]{VecMat}				{ return (int)Tokens.KWINT; }
