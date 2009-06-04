@@ -179,6 +179,7 @@
 					if (txt.Equals("col_major")) return (int)Tokens.KWCOLMAJOR;
                     break;
                 case 'd':
+					if (txt.Equals("defined")) return (int)Tokens.PPDEFINED;
 					if (txt.Equals("depthstencilstate")) return (int)Tokens.KWDEPTHSTENCILSTATE;
 					if (txt.Equals("depthstencilview")) return (int)Tokens.KWDEPTHSTENCILVIEW;
 					if (txt.Equals("discard")) return (int)Tokens.KWDISCARD;
@@ -360,10 +361,10 @@ VecMat	([1-4](([xX][1-4])?))?
 */
 
 [a-zA-Z_][a-zA-Z0-9_]*    { return GetIdToken(yytext); }
-[0-9]+([uUlL])?			  { return (int)Tokens.NUMBER; }
+(\-)?[0-9]+([uUlL])?			  { return (int)Tokens.NUMBER; }
 0x[0-9a-fA-F]+([uUlL])?	  { return (int)Tokens.NUMBER; }
-[0-9]+\.[0-9]*([hHfF])?	  { return (int)Tokens.NUMBER; }
-[0-9]*\.[0-9]+([hHfF])?	  { return (int)Tokens.NUMBER; }
+(\-)?[0-9]+\.[0-9]*([hHfF])?	  { return (int)Tokens.NUMBER; }
+(\-)?[0-9]*\.[0-9]+([hHfF])?	  { return (int)Tokens.NUMBER; }
 
 ;                         { return (int)';';    }
 ,                         { return (int)',';    }
@@ -426,6 +427,7 @@ VecMat	([1-4](([xX][1-4])?))?
 #line					  { return (int)Tokens.PPLINE; }
 #undef					  { return (int)Tokens.PPUNDEF; }
 #						  { return (int)'#'; }
+\?						  { return (int)'?'; }
 
 {CmntStart}{ABStar}\**{CmntEnd} { return (int)Tokens.LEX_COMMENT; } 
 {CmntStart}{ABStar}\**          { BEGIN(COMMENT); return (int)Tokens.LEX_COMMENT; }

@@ -129,6 +129,7 @@ namespace Babel
             ColorOperatorToken((int)'|');
             ColorOperatorToken((int)'.');
             ColorOperatorToken((int)'%');
+            ColorOperatorToken((int)'?');
 
 
             //// Extra token values internal to the scanner
