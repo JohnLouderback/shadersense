@@ -74,7 +74,7 @@
 //	Special types 
 
   // %token ',' ';' '(' ')' '{' '}' '=' '[' ']' '.' '"' '#'
-  // %token '+' '-' '*' '/' '!' '&' '|' '^' ':' '%' '\'
+  // %token '+' '-' '*' '/' '!' '&' '|' '^' ':' '%' '\' '?'
 
 %token EQ NEQ GT GTE LT LTE AMPAMP BARBAR
 %token POUNDPOUND POUNDAT INCR DECR SCOPE
@@ -82,7 +82,7 @@
 %token ELLIPSIS MULTASSN DIVASSN ADDASSN SUBASSN
 %token MODASSN ANDASSN ORASSN XORASSN ARROW
 %token STRING
-%token PPDEFINE PPELIF PPELSE PPENDIF PPERROR
+%token PPDEFINE PPDEFINED PPELIF PPELSE PPENDIF PPERROR
 %token PPIF PPIFDEF PPIFNDEF PPINCLUDE
 %token PPLINE PPUNDEF PPINCLFILE
 %token maxParseToken 
@@ -113,12 +113,13 @@ Declaration_
     ;
     
 Preprocessor
-	: PPDEFINE error
+	: PPDEFINE IDENTIFIER Expr
+	| PPDEFINE IDENTIFIER
 	| PPELIF error
 	| PPELSE
 	| PPENDIF
 	| PPERROR error
-	| PPIF error
+	| PPIF PPIfExpr
 	| PPIFDEF IDENTIFIER
 	| PPIFNDEF IDENTIFIER
 	| PPINCLUDE STRING			{ /* */ }
@@ -126,6 +127,13 @@ Preprocessor
 	| PPLINE NUMBER STRING
 	| PPUNDEF IDENTIFIER
 	| '#'
+	;
+
+PPIfExpr
+	: PPDEFINED ParenExpr
+	| '!' PPDEFINED ParenExpr
+	| PPIfExpr BoolOp PPDEFINED ParenExpr
+	| PPIfExpr BoolOp '!' PPDEFINED ParenExpr
 	;
 	
 
@@ -144,15 +152,14 @@ SimpleDeclarations1
 
 SimpleDeclaration
     : SemiDeclaration ';'
-    | VariableDeclaration ';'		{ AddVarAsGlobal(); }
     | SemiDeclaration error ';'     { CallHdlr("Bad declaration, expected ';'", @2); }
     ;
 
 
 SemiDeclaration
-/*    : SemiDeclaration ',' IDENTIFIER                                    
-    | VariableDeclaration						{ AddVarAsGlobal(); }*/
-    : KWSTRUCT IDENTIFIER StructBlock			{ AddStructType($2); }
+/*    : SemiDeclaration ',' IDENTIFIER                                    */
+    : VariableDeclaration						{ AddVarAsGlobal(); }
+    | KWSTRUCT IDENTIFIER StructBlock			{ AddStructType($2); }
     | KWSAMPLER IDENTIFIER '=' SamplerBlock		{ AddVariable($2, $1, @2);
 												  AddVarAsGlobal(); }
     | KWTYPEDEF Type IDENTIFIER					{ AddTypedefType($2, $3); }
@@ -218,8 +225,19 @@ InitialValue
 	
 InitValue
 	: Expr
+	| OpenBlock ScalarArrayVals CloseBlock
 	| OpenBlock NumberVals CloseBlock
 	| OpenBlock BoolVals CloseBlock
+	;
+	
+ScalarArrayVals
+	: ScalarArray
+	| ScalarArrayVals ',' ScalarArray
+	;
+	
+ScalarArray
+	: ScalarType '(' NumberVals ')'
+	| ScalarType '(' BoolVals ')'
 	;
 	
 NumberVals
@@ -436,6 +454,7 @@ Statement
     | KWIF ParenExprAlways Statement KWELSE Statement
                                 { /*  */ }
     | Block						{ AddScope(@1); }
+    | Preprocessor
     ;
 
 ParenExprAlways
@@ -507,6 +526,7 @@ AssignOps
 
 Expr
     : RelExpr BoolOp Expr
+    | RelExpr '?' RelExpr ':' RelExpr
     | RelExpr
     | STRING
     | '"'
@@ -575,6 +595,7 @@ Factor
     | Identifier
     | NUMBER
     | ParenExpr
+    | BoolValues
     ;     
     
 Identifier

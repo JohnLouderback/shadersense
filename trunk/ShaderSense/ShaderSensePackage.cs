@@ -63,6 +63,7 @@ namespace Company.ShaderSense
     [Guid(GuidList.guidShaderSensePkgString)]
     [ProvideService(typeof(Babel.HLSLLanguageService))]
     [ProvideLanguageExtension(typeof(Babel.HLSLLanguageService), Babel.Configuration.Extension)]
+    [ProvideLanguageExtension(typeof(Babel.HLSLLanguageService), ".fxc")]
     [ProvideLanguageService(typeof(Babel.HLSLLanguageService), Babel.Configuration.Name, 0,
         CodeSense=true,
         EnableCommenting=true,
