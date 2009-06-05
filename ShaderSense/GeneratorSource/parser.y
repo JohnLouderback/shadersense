@@ -232,9 +232,9 @@ InitialValue
 	
 InitValue
 	: Expr
-	| OpenBlock ScalarArrayVals CloseBlock
-	| OpenBlock NumberVals CloseBlock
-	| OpenBlock BoolVals CloseBlock
+	| '{' ScalarArrayVals '}'
+	| '{' NumberVals '}'
+	| '{' BoolVals '}'
 	;
 	
 ScalarArrayVals
@@ -245,8 +245,8 @@ ScalarArrayVals
 ScalarArray
 	: ScalarType '(' NumberVals ')'
 	| ScalarType '(' BoolVals ')'
-	| OpenBlock NumberVals CloseBlock
-	| OpenBlock BoolVals CloseBlock
+	| '{' NumberVals '}'
+	| '{' BoolVals '}'
 	;
 	
 NumberVals
@@ -281,21 +281,21 @@ Register
 
 Params1
     : Params1 ',' InputMod Type IDENTIFIER					{ $$ = Lexify($1.str + ", " + $3.str + " " + $4.str + " " + $5.str); 
-																AddVariable($5, $4, @5);/* */ }
+																AddFunctionParamVar($5, $4, @5);/* */ }
     | Params1 ',' InputMod Type IDENTIFIER ':' IDENTIFIER	{ $$ = Lexify($1.str + ", " + $3.str + " " + $4.str + " " + $5.str); 
-																AddVariable($5, $4, @5);/* */ }
+																AddFunctionParamVar($5, $4, @5);/* */ }
     | InputMod Type IDENTIFIER								{ $$ = Lexify($1.str + " " + $2.str + " " + $3.str);
-																AddVariable($3, $2, @3);/* */ }
+																AddFunctionParamVar($3, $2, @3);/* */ }
     | InputMod Type IDENTIFIER ':' IDENTIFIER				{ $$ = Lexify($1.str + " " + $2.str + " " + $3.str);
-																AddVariable($3, $2, @3);/* */ }
+																AddFunctionParamVar($3, $2, @3);/* */ }
     | Params1 ',' InputMod IDENTIFIER IDENTIFIER					{ $$ = Lexify($1.str + ", " + $3.str + " " + $4.str + " " + $5.str); 
-																		AddVariable($5, $4, @5);/* Do some sort of type checking (red underlining)? */ }
+																		AddFunctionParamVar($5, $4, @5);/* Do some sort of type checking (red underlining)? */ }
     | Params1 ',' InputMod IDENTIFIER IDENTIFIER ':' IDENTIFIER	    { $$ = Lexify($1.str + ", " + $3.str + " " + $4.str + " " + $5.str);
-																		AddVariable($5, $4, @5); /* */ }
+																		AddFunctionParamVar($5, $4, @5); /* */ }
     | InputMod IDENTIFIER IDENTIFIER								{ $$ = Lexify($1.str + " " + $2.str + " " + $3.str);
-																		AddVariable($3, $2, @3);/* */ }
+																		AddFunctionParamVar($3, $2, @3);/* */ }
     | InputMod IDENTIFIER IDENTIFIER ':' IDENTIFIER				    { $$ = Lexify($1.str + " " + $2.str + " " + $3.str);
-																		AddVariable($3, $2, @3);/* */ }
+																		AddFunctionParamVar($3, $2, @3);/* */ }
     ;
 
 ParenParams
@@ -361,12 +361,12 @@ OtherTypes
     ;
     
 StructBlock
-	: OpenBlock CloseBlock		{ Match(@1, @2); }
-	| OpenBlock StructBlockContents CloseBlock
+	: '{' '}'		{ Match(@1, @2); }
+	| '{' StructBlockContents '}'
 	                            { Match(@1, @3); }
-    | OpenBlock StructBlockContents error 
+    | '{' StructBlockContents error 
                                 { CallHdlr("missing '}'", @3); }
-    | OpenBlock error CloseBlock
+    | '{' error '}'
                                 { Match(@1, @3); }
     ;
     
@@ -391,7 +391,7 @@ InterpMod
 	;
 	
 SamplerBlock
-	: SamplerType OpenBlock SamplerBlockContents CloseBlock		{ Match(@2, @4); }
+	: SamplerType '{' SamplerBlockContents '}'		{ Match(@2, @4); }
 	;
 	
 SamplerType
@@ -434,11 +434,11 @@ Block
     ;
 
 OpenBlock
-    : '{'                       { /*  */ }
+    : '{'                       { BeginScope(@1); }
     ;
 
 CloseBlock
-    : '}'                       { /*  */ }
+    : '}'                       { EndScope(@1); }
     ;
 
 BlockContent1
@@ -458,7 +458,15 @@ Statement
     | SemiStatement error ';'       { CallHdlr("expected ';'", @2); } 
   
     | KWWHILE ParenExprAlways Statement
-    | KWFOR ForHeader Statement
+    | KWFOR ForHeader Statement			{ /*if(!($2.str.Equals(string.Empty)))
+										  {
+											 CodeScope forscope;
+											 if(HLSLScopeUtils.HasScopeForSpan(MkTSpan(@3), tempScopes, out forscope))
+											 {
+												
+											 }
+										  }*/
+										}
     | KWIF ParenExprAlways Statement
     | KWIF ParenExprAlways Statement KWELSE Statement
                                 { /*  */ }
@@ -485,8 +493,8 @@ ForHeader
     ;
 
 ForBlock
-    : AssignExpr ';' Expr ';' AssignExpr
-    | ScalarType AssignExpr ';' Expr ';' AssignExpr
+    : AssignExpr ';' Expr ';' AssignExpr				{ $$ = Lexify(string.Empty); }
+    | ScalarType AssignExpr ';' Expr ';' AssignExpr		{ $$ = Lexify($1.str + $2.str); }
     ;
 
 SemiStatement
@@ -516,7 +524,7 @@ EndArg
     ;    
 
 AssignExpr
-    : Identifier AssignOps Expr   
+    : Identifier AssignOps Expr		{ $$ = $1; }
     | Identifier INCR
     | Identifier DECR
     | Expr

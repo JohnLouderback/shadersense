@@ -25,6 +25,7 @@ using System.Linq;
 using System.Text;
 using Babel.Parser;
 using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Babel
 {
@@ -56,6 +57,12 @@ namespace Babel
 
             if (scope.outer != null)
                 GetVarDecls(scope.outer, varDecls);
+        }
+
+        public static bool HasScopeForSpan(TextSpan ts, List<Parser.Parser.CodeScope> currentscopes, out Parser.Parser.CodeScope scope)
+        {
+            scope = null;
+            return false;
         }
     }
 }
