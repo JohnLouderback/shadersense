@@ -59,9 +59,26 @@ namespace Babel
                 GetVarDecls(scope.outer, varDecls);
         }
 
-        public static bool HasScopeForSpan(TextSpan ts, List<Parser.Parser.CodeScope> currentscopes, out Parser.Parser.CodeScope scope)
+        //If it returns true, scope contains the scope that has the matching TextSpan
+        //If it returns false, scope contains the scope that TextSpan ts would be contained in
+        public static bool HasScopeForSpan(TextSpan ts, Parser.Parser.CodeScope globalScope, out Parser.Parser.CodeScope scope)
         {
-            scope = null;
+            foreach (Parser.Parser.CodeScope cs in globalScope.innerScopes)
+            {
+                if (TextSpanHelper.IsSameSpan(ts, cs.scopeLocation))
+                {
+                    scope = cs;
+                    return true;
+                }
+                else
+                {
+                    if(TextSpanHelper.IsEmbedded(ts, cs.scopeLocation))
+                    {
+                        return HasScopeForSpan(ts, cs, out scope);
+                    }
+                }
+            }
+            scope = globalScope;
             return false;
         }
     }

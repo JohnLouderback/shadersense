@@ -43,7 +43,6 @@ namespace Babel.Parser
         const int GLYPHVARIABLE = GLYPHBASE * 23;
         public const int GLYPH_TYPE_FUNCTION = GLYPHBASE * 12;
 
-//        public static List<Babel.HLSLDeclaration> storedVars = new List<Babel.HLSLDeclaration>();
         public static IList<Babel.HLSLFunction> methods = new List<Babel.HLSLFunction>();
         private static List<HLSLDeclaration> tempMembers = new List<HLSLDeclaration>();
         private static List<CodeScope> tempScopes = new List<CodeScope>();
@@ -59,6 +58,7 @@ namespace Babel.Parser
         public static CodeScope programScope;
         public static List<string> identifierNames = new List<string>();
         public static List<TextSpan> identifierLocs = new List<TextSpan>();
+        private static Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
 
         //used to represent a variable declaration
         public class VarDecl
@@ -92,7 +92,6 @@ namespace Babel.Parser
             public CodeScope(TextSpan loc)
             {
                 innerScopes = new List<CodeScope>();
-                //scopeVars = new Dictionary<string, VarDecl>();
                 scopeVars = null;
                 scopeLocation = loc;
                 outer = null;
@@ -136,39 +135,28 @@ namespace Babel.Parser
             tempCurScope.scopeVars = new Dictionary<string, VarDecl>(tempVars);
             tempVars.Clear();
             tempVars = new Dictionary<string, VarDecl>(tempScopeVarStack.Pop());
+
+            Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> deferred = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
+            foreach (KeyValuePair<TextSpan, KeyValuePair<TextSpan, LexValue>> kv in forLoopVars)
+            {
+                //If the for loop isn't embedded in this scope, then continue to defer it
+                if (TextSpanHelper.IsEmbedded(TextSpanHelper.Merge(kv.Value.Key, kv.Key), tempCurScope.scopeLocation))
+                    CheckForLoopScope(kv.Value.Value, kv.Value.Key, kv.Key);
+                else
+                    deferred.Add(kv.Key, new KeyValuePair<TextSpan, LexValue>(kv.Value.Key, kv.Value.Value));
+            }
+            forLoopVars.Clear();
+            forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>(deferred);
+
             tempLastScope = tempCurScope;
             tempCurScope = tempCurScope.outer;
-        }
 
-        // Tries to add inner scopes to the current scope
-        public void AddScope(LexLocation loc)
-        {
- /*           int x = 0;
-            if (TextSpanHelper.IsSameSpan(MkTSpan(loc), tempCurScope.innerScopes.ElementAt(tempCurScope.innerScopes.Count - 1).scopeLocation))
-            {
-                x = 1;
-            }
-            CodeScope scope = new CodeScope(tempVars, MkTSpan(loc));
-            tempVars.Clear();
-            foreach (CodeScope cs in tempScopes)
-            {
-                if (TextSpanHelper.IsEmbedded(cs.scopeLocation, MkTSpan(loc)))
-                {
-                    scope.innerScopes.Add(cs);
-                    cs.outer = scope;
-                    tempScopes.Remove(cs);
-                }
-            }
-            tempScopes.Add(scope);*/
+            
         }
 
         //Creates the main program scope that includes functions and global variables
         public void AddProgramScope(LexLocation loc)
         {
-/*            programScope = new CodeScope(globalVars, MkTSpan(loc));
-            foreach (CodeScope cs in tempScopes)
-                cs.outer = programScope;
-            programScope.innerScopes.AddRange(tempScopes);*/
             programScope.scopeVars = new Dictionary<string, VarDecl>(globalVars);
         }
 
@@ -180,7 +168,6 @@ namespace Babel.Parser
                 return;
             }
             HLSLDeclaration newDecl = new Babel.HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
-//            storedVars.Add(newDecl);
 
             tempVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
         }
@@ -273,7 +260,6 @@ namespace Babel.Parser
         //Called before the new parse starts; clears the current lists
         public static void clearDeclarations()
         {
-//            Parser.storedVars.Clear();
             Parser.structDecls.Clear();
             Parser.structMembers.Clear();
             Parser.typedefTypes.Clear();
@@ -284,6 +270,7 @@ namespace Babel.Parser
             Parser.globalVars.Clear();
             Parser.identifierLocs.Clear();
             Parser.identifierNames.Clear();
+            Parser.forLoopVars.Clear();
         }
 
         //Determines whether the parser should add declarations or not
@@ -302,6 +289,53 @@ namespace Babel.Parser
         {
             identifierNames.Add(identifier.str);
             identifierLocs.Add(MkTSpan(idenLoc));
+        }
+
+        //Need to defer the checking of the for loop scope until the scope it is in finishes parsing
+        public void DeferCheckForLoopScope(LexValue assignVal, LexLocation forHeader, LexLocation forBody)
+        {
+            forLoopVars.Add(MkTSpan(forBody), new KeyValuePair<TextSpan, LexValue>(MkTSpan(forHeader), assignVal));
+        }
+
+        public void CheckForLoopScope(LexValue assignVal, TextSpan forHeader, TextSpan forBody)
+        {
+            if(!(assignVal.str.Equals(string.Empty)))
+			{
+				CodeScope forscope;
+                string[] typeAndName = assignVal.str.Split(' ');
+                if (HLSLScopeUtils.HasScopeForSpan(forBody, programScope, out forscope))
+                {
+                    forscope.scopeVars.Add(typeAndName[1], new VarDecl(new HLSLDeclaration(typeAndName[0], typeAndName[1], GLYPHVARIABLE, typeAndName[1]), forBody));
+                    forscope.scopeLocation = TextSpanHelper.Merge(forHeader, forBody);
+                }
+                else
+                {
+                    TextSpan forScopeLocation = TextSpanHelper.Merge(forHeader, forBody);
+                    CodeScope forCs = new CodeScope(new Dictionary<string, VarDecl>(), forScopeLocation);
+                    forCs.outer = forscope;
+                    forCs.scopeVars.Add(typeAndName[1], new VarDecl(new HLSLDeclaration(typeAndName[0], typeAndName[1], GLYPHVARIABLE, typeAndName[1]), forBody));
+
+                    if (forscope.innerScopes.Count == 0)
+                    {
+                        forscope.innerScopes.Add(forCs);
+                    }
+                    else
+                    {
+                        bool inserted = false;
+                        for (int i = 0; i < forscope.innerScopes.Count; i++)
+                        {
+                            if (TextSpanHelper.EndsBeforeStartOf(forScopeLocation, forscope.innerScopes[i].scopeLocation))
+                            {
+                                forscope.innerScopes.Insert(i, forCs);
+                                inserted = true;
+                                break;
+                            }
+                        }
+                        if( !inserted )
+                            forscope.innerScopes.Add(forCs);
+                    }
+                }
+			}
         }
     }
 }

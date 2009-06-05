@@ -141,13 +141,13 @@ SimpleDeclarations1
     : SimpleDeclaration SimpleDeclarations1
     | SimpleDeclaration 
     | KWINLINE Type IDENTIFIER ParenParams Block					{ AddFunction($2,$3,$4);
-																	  AddScope(@5); }
+																	  /*AddScope(@5);*/ }
 	| Type IDENTIFIER ParenParams Block								{ AddFunction($1,$2,$3);
-																	  AddScope(@4); }
+																	  /*AddScope(@4);*/ }
 	| KWINLINE Type IDENTIFIER ParenParams ':' IDENTIFIER Block		{ AddFunction($2,$3,$4);
-																	  AddScope(@7); }
+																	  /*AddScope(@7);*/ }
 	| Type IDENTIFIER ParenParams ':' IDENTIFIER Block				{ AddFunction($1,$2,$3);
-																	  AddScope(@6); }
+																	  /*AddScope(@6);*/ }
     ;
 
 SimpleDeclaration
@@ -458,19 +458,11 @@ Statement
     | SemiStatement error ';'       { CallHdlr("expected ';'", @2); } 
   
     | KWWHILE ParenExprAlways Statement
-    | KWFOR ForHeader Statement			{ /*if(!($2.str.Equals(string.Empty)))
-										  {
-											 CodeScope forscope;
-											 if(HLSLScopeUtils.HasScopeForSpan(MkTSpan(@3), tempScopes, out forscope))
-											 {
-												
-											 }
-										  }*/
-										}
+    | KWFOR ForHeader Statement			{ DeferCheckForLoopScope($2, @2, @3); }
     | KWIF ParenExprAlways Statement
     | KWIF ParenExprAlways Statement KWELSE Statement
                                 { /*  */ }
-    | Block						{ AddScope(@1); }
+    | Block						{ /*AddScope(@1);*/ }
     | Preprocessor
     ;
 
@@ -486,15 +478,17 @@ ParenExpr
     ;
 
 ForHeader
-    : '(' ForBlock ')'          { Match(@1, @3); }
-    | '(' ForBlock error        { CallHdlr("unmatched parentheses", @3); }
+    : '(' ForBlock ')'          { $$ = $2;
+								  Match(@1, @3); }
+    | '(' ForBlock error        { $$ = $2;
+								  CallHdlr("unmatched parentheses", @3); }
     | '(' error ')'             { Match(@1, @3); 
                                   CallHdlr("error in for", @2); }
     ;
 
 ForBlock
     : AssignExpr ';' Expr ';' AssignExpr				{ $$ = Lexify(string.Empty); }
-    | ScalarType AssignExpr ';' Expr ';' AssignExpr		{ $$ = Lexify($1.str + $2.str); }
+    | ScalarType AssignExpr ';' Expr ';' AssignExpr		{ $$ = Lexify($1.str + " " + $2.str); }
     ;
 
 SemiStatement
