@@ -43,11 +43,15 @@ namespace Babel.Parser
         const int GLYPHVARIABLE = GLYPHBASE * 23;
         public const int GLYPH_TYPE_FUNCTION = GLYPHBASE * 12;
 
-        public static List<Babel.HLSLDeclaration> storedVars = new List<Babel.HLSLDeclaration>();
+//        public static List<Babel.HLSLDeclaration> storedVars = new List<Babel.HLSLDeclaration>();
         public static IList<Babel.HLSLFunction> methods = new List<Babel.HLSLFunction>();
         private static List<HLSLDeclaration> tempMembers = new List<HLSLDeclaration>();
         private static List<CodeScope> tempScopes = new List<CodeScope>();
+        private static Stack<Dictionary<string, VarDecl>> tempScopeVarStack = new Stack<Dictionary<string, VarDecl>>();
+        private static CodeScope tempCurScope = null;
+        private static CodeScope tempLastScope = null;
         private static Dictionary<string, VarDecl> tempVars = new Dictionary<string, VarDecl>();
+        private static Dictionary<string, VarDecl> tempFunctionVars = new Dictionary<string, VarDecl>();
         public static Dictionary<string, VarDecl> globalVars = new Dictionary<string, VarDecl>();
         public static List<HLSLDeclaration> structDecls = new List<HLSLDeclaration>();
         public static List<StructMembers> structMembers = new List<StructMembers>();
@@ -84,6 +88,15 @@ namespace Babel.Parser
                 scopeLocation = loc;
                 outer = null;
             }
+
+            public CodeScope(TextSpan loc)
+            {
+                innerScopes = new List<CodeScope>();
+                //scopeVars = new Dictionary<string, VarDecl>();
+                scopeVars = null;
+                scopeLocation = loc;
+                outer = null;
+            }
         }
 
         //used to store members of a struct
@@ -99,10 +112,42 @@ namespace Babel.Parser
             }
         }
 
+        public static void PrepareParse(TextSpan programLoc)
+        {
+            programScope = new CodeScope(programLoc);
+            tempCurScope = programScope;
+        }
+
+        public void BeginScope(LexLocation loc)
+        {
+            CodeScope scope = new CodeScope(MkTSpan(loc));
+            scope.outer = tempCurScope;
+            tempCurScope.innerScopes.Add(scope);
+            Dictionary<string, VarDecl> vars = new Dictionary<string, VarDecl>(tempVars);
+            tempScopeVarStack.Push(vars);
+            tempVars.Clear();
+            tempVars = new Dictionary<string, VarDecl>();
+            tempCurScope = scope;
+        }
+
+        public void EndScope(LexLocation loc)
+        {
+            tempCurScope.scopeLocation = TextSpanHelper.Merge(tempCurScope.scopeLocation, MkTSpan(loc));
+            tempCurScope.scopeVars = new Dictionary<string, VarDecl>(tempVars);
+            tempVars.Clear();
+            tempVars = new Dictionary<string, VarDecl>(tempScopeVarStack.Pop());
+            tempLastScope = tempCurScope;
+            tempCurScope = tempCurScope.outer;
+        }
 
         // Tries to add inner scopes to the current scope
         public void AddScope(LexLocation loc)
         {
+ /*           int x = 0;
+            if (TextSpanHelper.IsSameSpan(MkTSpan(loc), tempCurScope.innerScopes.ElementAt(tempCurScope.innerScopes.Count - 1).scopeLocation))
+            {
+                x = 1;
+            }
             CodeScope scope = new CodeScope(tempVars, MkTSpan(loc));
             tempVars.Clear();
             foreach (CodeScope cs in tempScopes)
@@ -114,16 +159,17 @@ namespace Babel.Parser
                     tempScopes.Remove(cs);
                 }
             }
-            tempScopes.Add(scope);
+            tempScopes.Add(scope);*/
         }
 
         //Creates the main program scope that includes functions and global variables
         public void AddProgramScope(LexLocation loc)
         {
-            programScope = new CodeScope(globalVars, MkTSpan(loc));
+/*            programScope = new CodeScope(globalVars, MkTSpan(loc));
             foreach (CodeScope cs in tempScopes)
                 cs.outer = programScope;
-            programScope.innerScopes.AddRange(tempScopes);
+            programScope.innerScopes.AddRange(tempScopes);*/
+            programScope.scopeVars = new Dictionary<string, VarDecl>(globalVars);
         }
 
         //Records a variable declaration that will later get added to a scope
@@ -134,7 +180,7 @@ namespace Babel.Parser
                 return;
             }
             HLSLDeclaration newDecl = new Babel.HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
-            storedVars.Add(newDecl);
+//            storedVars.Add(newDecl);
 
             tempVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
         }
@@ -147,6 +193,12 @@ namespace Babel.Parser
                 globalVars.Add(tempVars.ElementAt(0).Key, tempVars.ElementAt(0).Value);
                 tempVars.Clear();
             }
+        }
+
+        public void AddFunctionParamVar(LexValue varName, LexValue type, LexLocation loc)
+        {
+            HLSLDeclaration newDecl = new HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
+            tempFunctionVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
         }
 
         //Adds a struct type and its members
@@ -202,6 +254,11 @@ namespace Babel.Parser
                 }
             }
             methods.Add(method);
+
+            foreach (KeyValuePair<string, VarDecl> kv in tempFunctionVars)
+                tempLastScope.scopeVars.Add(kv.Key, kv.Value);
+
+            tempFunctionVars.Clear();
         }
 
         //Used by the parser to combine multiple tokens' string values into a single token
@@ -216,7 +273,7 @@ namespace Babel.Parser
         //Called before the new parse starts; clears the current lists
         public static void clearDeclarations()
         {
-            Parser.storedVars.Clear();
+//            Parser.storedVars.Clear();
             Parser.structDecls.Clear();
             Parser.structMembers.Clear();
             Parser.typedefTypes.Clear();

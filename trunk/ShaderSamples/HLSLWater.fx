@@ -83,6 +83,10 @@ float4 PS(in V2P IN) : COLOR
     float3 Water2 = 2.0f * tex2D(Water2TexSampler, IN.TexCoord1).rgb - 1.0f;
     
     float3 FinalWater = normalize(Water1 + Water2) * 0.5f;
+    if( FinalWater > 1 )
+    {
+		float x = 0;
+	}
     
     //Find the color of the object
     float4 Color = tex2Dproj(ProjTexSampler, IN.TexCoord2 + float4(FinalWater, 0.0f));

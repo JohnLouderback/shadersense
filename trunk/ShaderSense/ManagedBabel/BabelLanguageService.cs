@@ -114,6 +114,7 @@ namespace Babel
 
                 parser.MBWInit(req);
                 if (parser.shouldAddDeclarations()) Parser.Parser.clearDeclarations();       //  Hack to purge old parser declarations
+                Parser.Parser.PrepareParse(source.GetDocumentSpan());
                 yyparseResult = parser.Parse();
 
 				// store the parse results

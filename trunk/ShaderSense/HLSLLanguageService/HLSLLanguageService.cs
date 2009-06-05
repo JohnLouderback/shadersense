@@ -57,6 +57,8 @@ namespace Babel
             {
                 case ParseReason.QuickInfo:
                     return new HLSLAuthoringScope(source);
+                case ParseReason.CompleteWord:
+                    return new HLSLAuthoringScope(source);
                 case ParseReason.MethodTip:
                     HLSLAuthoringScope scope = (HLSLAuthoringScope)base.ParseSource(req);
                     scope.updateMethods();
