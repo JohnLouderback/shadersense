@@ -59,6 +59,7 @@ namespace Babel.Parser
         public static List<string> identifierNames = new List<string>();
         public static List<TextSpan> identifierLocs = new List<TextSpan>();
         private static Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
+        public static Dictionary<TextSpan, LexValue> structVars = new Dictionary<TextSpan, LexValue>();
 
         //used to represent a variable declaration
         public class VarDecl
@@ -271,6 +272,7 @@ namespace Babel.Parser
             Parser.identifierLocs.Clear();
             Parser.identifierNames.Clear();
             Parser.forLoopVars.Clear();
+            Parser.structVars.Clear();
         }
 
         //Determines whether the parser should add declarations or not
@@ -341,5 +343,9 @@ namespace Babel.Parser
             }
         }
 
+        public void AddStructVarForCompletion(LexValue varName, LexLocation loc)
+        {
+            structVars.Add(MkTSpan(loc), varName);
+        }
     }
 }

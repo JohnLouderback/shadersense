@@ -618,8 +618,10 @@ Factor
 Identifier
     : IDENTIFIER				  { AddIdentifierToCheck($1, @1); }
     | IDENTIFIER ArrayIndex       { /*  */ }
-    | Identifier '.' IDENTIFIER	  { /*  */ }	
-    | Identifier '.' error        { CallHdlr("expected identifier", @3); }
+    | Identifier '.' IDENTIFIER	  { AddStructVarForCompletion($1, @1); }	
+    | Identifier '.' error        { CallHdlr("expected identifier", @3);
+									AddStructVarForCompletion($1, @1); }
+    | error						  { CallHdlr("expected identifier", @1); }
     ;
     
 ArrayIndex
