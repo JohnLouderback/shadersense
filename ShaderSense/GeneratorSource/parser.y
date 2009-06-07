@@ -148,6 +148,7 @@ SimpleDeclarations1
 																	  /*AddScope(@7);*/ }
 	| Type IDENTIFIER ParenParams ':' IDENTIFIER Block				{ AddFunction($1,$2,$3);
 																	  /*AddScope(@6);*/ }
+	| KWTECHNIQUE IDENTIFIER TechniqueBlock
     ;
 
 SimpleDeclaration
@@ -489,6 +490,8 @@ ForHeader
 ForBlock
     : AssignExpr ';' Expr ';' AssignExpr				{ $$ = Lexify(string.Empty); }
     | ScalarType AssignExpr ';' Expr ';' AssignExpr		{ $$ = Lexify($1.str + " " + $2.str); }
+    | ScalarType AssignExpr ';' error
+    | ScalarType AssignExpr ';' Expr ';' error
     ;
 
 SemiStatement
@@ -622,7 +625,54 @@ Identifier
 ArrayIndex
 	: '[' Factor ']'			  { Match(@1, @3); }
 	;
-    
+	
+TechniqueBlock
+	: '{' Passes '}'
+	;
+	
+Passes
+	: Pass
+	| Passes Pass
+	;
+	
+Pass
+	: KWPASS IDENTIFIER PassBlock
+	;
+	
+PassBlock
+	: '{' PassStatements '}'
+	;
+	
+PassStatements
+	: PassStatement
+	| PassStatements PassStatement
+	;
+	
+PassStatement
+	: ShaderType '=' KWCOMPILE IDENTIFIER IDENTIFIER '(' OptionalParams ')' ';'
+	| ShaderType '=' IDENTIFIER ';' /* IDENTIFIER should be the word NULL */
+	| IDENTIFIER '=' IDENTIFIER ';'
+	| IDENTIFIER '=' LT IDENTIFIER GT ';'
+	| IDENTIFIER '[' NUMBER ']' '=' IDENTIFIER ';'
+	| IDENTIFIER '[' NUMBER ']' '=' LT IDENTIFIER GT ';'
+	;
+	
+ShaderType
+	: KWVERTEXSHADER
+	| KWPIXELSHADER
+	;
+	
+OptionalParams
+	: OptionalParams
+	| OptionalParams OptionalParam
+	| /* */
+	;
+	
+OptionalParam
+    : IDENTIFIER
+    | NUMBER
+    | BoolValues
+    ;
 %%
 
 

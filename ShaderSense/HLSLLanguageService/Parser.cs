@@ -299,43 +299,47 @@ namespace Babel.Parser
 
         public void CheckForLoopScope(LexValue assignVal, TextSpan forHeader, TextSpan forBody)
         {
-            if(!(assignVal.str.Equals(string.Empty)))
-			{
-				CodeScope forscope;
-                string[] typeAndName = assignVal.str.Split(' ');
-                if (HLSLScopeUtils.HasScopeForSpan(forBody, programScope, out forscope))
+            if (assignVal.str != null)
+            {
+                if (!(assignVal.str.Equals(string.Empty)))
                 {
-                    forscope.scopeVars.Add(typeAndName[1], new VarDecl(new HLSLDeclaration(typeAndName[0], typeAndName[1], GLYPHVARIABLE, typeAndName[1]), forBody));
-                    forscope.scopeLocation = TextSpanHelper.Merge(forHeader, forBody);
-                }
-                else
-                {
-                    TextSpan forScopeLocation = TextSpanHelper.Merge(forHeader, forBody);
-                    CodeScope forCs = new CodeScope(new Dictionary<string, VarDecl>(), forScopeLocation);
-                    forCs.outer = forscope;
-                    forCs.scopeVars.Add(typeAndName[1], new VarDecl(new HLSLDeclaration(typeAndName[0], typeAndName[1], GLYPHVARIABLE, typeAndName[1]), forBody));
-
-                    if (forscope.innerScopes.Count == 0)
+                    CodeScope forscope;
+                    string[] typeAndName = assignVal.str.Split(' ');
+                    if (HLSLScopeUtils.HasScopeForSpan(forBody, programScope, out forscope))
                     {
-                        forscope.innerScopes.Add(forCs);
+                        forscope.scopeVars.Add(typeAndName[1], new VarDecl(new HLSLDeclaration(typeAndName[0], typeAndName[1], GLYPHVARIABLE, typeAndName[1]), forBody));
+                        forscope.scopeLocation = TextSpanHelper.Merge(forHeader, forBody);
                     }
                     else
                     {
-                        bool inserted = false;
-                        for (int i = 0; i < forscope.innerScopes.Count; i++)
+                        TextSpan forScopeLocation = TextSpanHelper.Merge(forHeader, forBody);
+                        CodeScope forCs = new CodeScope(new Dictionary<string, VarDecl>(), forScopeLocation);
+                        forCs.outer = forscope;
+                        forCs.scopeVars.Add(typeAndName[1], new VarDecl(new HLSLDeclaration(typeAndName[0], typeAndName[1], GLYPHVARIABLE, typeAndName[1]), forBody));
+
+                        if (forscope.innerScopes.Count == 0)
                         {
-                            if (TextSpanHelper.EndsBeforeStartOf(forScopeLocation, forscope.innerScopes[i].scopeLocation))
-                            {
-                                forscope.innerScopes.Insert(i, forCs);
-                                inserted = true;
-                                break;
-                            }
-                        }
-                        if( !inserted )
                             forscope.innerScopes.Add(forCs);
+                        }
+                        else
+                        {
+                            bool inserted = false;
+                            for (int i = 0; i < forscope.innerScopes.Count; i++)
+                            {
+                                if (TextSpanHelper.EndsBeforeStartOf(forScopeLocation, forscope.innerScopes[i].scopeLocation))
+                                {
+                                    forscope.innerScopes.Insert(i, forCs);
+                                    inserted = true;
+                                    break;
+                                }
+                            }
+                            if (!inserted)
+                                forscope.innerScopes.Add(forCs);
+                        }
                     }
                 }
-			}
+            }
         }
+
     }
 }
