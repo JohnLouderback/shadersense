@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using Microsoft.VisualStudio.Package;
+using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Babel
 {
@@ -146,8 +147,15 @@ namespace Babel
 
             //foreach (string state in aast.startStates.Keys)
             //    members.Add(new Declaration(state, state, 0, state));
-            TokenInfo info = _source.GetTokenInfo(line, col - 1);
-            string token = _source.GetText(line, info.StartIndex, line, info.EndIndex+1);
+            KeyValuePair<TextSpan, Parser.LexValue> var = new KeyValuePair<TextSpan,Babel.Parser.LexValue>( new TextSpan(), new Babel.Parser.LexValue());
+            foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in Parser.Parser.structVars)
+            {
+                if( TextSpanHelper.IsAfterEndOf(kv.Key, line, col) && TextSpanHelper.EndsAfterEndOf(kv.Key, var.Key) )
+                    var = kv;
+            }
+            //TokenInfo info = _source.GetTokenInfo(line, col - 1);
+            //string token = _source.GetText(line, info.StartIndex, line, info.EndIndex+1);
+            string token = var.Value.str;
 
             string varType = null;
             if( token != null )
