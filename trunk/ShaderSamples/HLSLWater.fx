@@ -86,7 +86,7 @@ float4 PS(in V2P IN) : COLOR
     if( FinalWater > 1 )
     {
 		float x = 0;
-	}
+	}	
     
     //Find the color of the object
     float4 Color = tex2Dproj(ProjTexSampler, IN.TexCoord2 + float4(FinalWater, 0.0f));

@@ -180,6 +180,16 @@ namespace Babel
 
             IVsTextLines textlines; // = new VsTextBufferClass();
             req.View.GetBuffer(out textlines);
+            //Clean up the old textmarkers in case some of them are no longer needed
+            IVsEnumLineMarkers ppEnum;
+            textlines.EnumMarkers(0, 0, 0, 0, 0, (uint)(ENUMMARKERFLAGS.EM_ALLTYPES | ENUMMARKERFLAGS.EM_ENTIREBUFFER), out ppEnum);
+            IVsTextLineMarker ppRetval;
+            ppEnum.Next(out ppRetval);
+            while( ppRetval != null )
+            {
+                ppRetval.Invalidate();
+                ppEnum.Next(out ppRetval);
+            }
             foreach (TextSpan ts in errorLocs)
             {
                 textlines.CreateLineMarker((int)MARKERTYPE.MARKER_CODESENSE_ERROR, ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex, null, null);
