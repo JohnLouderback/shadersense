@@ -53,7 +53,7 @@ namespace Babel.Parser
         private static Dictionary<string, VarDecl> tempFunctionVars = new Dictionary<string, VarDecl>();
         public static Dictionary<string, VarDecl> globalVars = new Dictionary<string, VarDecl>();
         public static List<HLSLDeclaration> structDecls = new List<HLSLDeclaration>();
-        public static List<StructMembers> structMembers = new List<StructMembers>();
+        public static Dictionary<string, StructMembers> structMembers = new Dictionary<string, StructMembers>();
         public static List<HLSLDeclaration> typedefTypes = new List<HLSLDeclaration>();
         public static CodeScope programScope;
         public static List<string> identifierNames = new List<string>();
@@ -198,7 +198,7 @@ namespace Babel.Parser
             }
             HLSLDeclaration structDecl = new HLSLDeclaration("struct", loc.str, GLYPHSTRUCT, loc.str);
             structDecls.Add(structDecl);
-            structMembers.Add(new StructMembers(loc.str, tempMembers));
+            structMembers.Add(loc.str, new StructMembers(loc.str, tempMembers));
             tempMembers.Clear();
         }
 
