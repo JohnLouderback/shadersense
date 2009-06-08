@@ -153,8 +153,6 @@ namespace Babel
                 if( TextSpanHelper.IsAfterEndOf(kv.Key, line, col) && TextSpanHelper.EndsAfterEndOf(kv.Key, var.Key) )
                     var = kv;
             }
-            //TokenInfo info = _source.GetTokenInfo(line, col - 1);
-            //string token = _source.GetText(line, info.StartIndex, line, info.EndIndex+1);
             string token = var.Value.str;
 
             string varType = null;
@@ -177,14 +175,9 @@ namespace Babel
 
             if (varType != null)
             {
-                foreach (Parser.Parser.StructMembers sm in Parser.Parser.structMembers)
-                {
-                    if (varType.Equals(sm.structName))
-                    {
-                        members.AddRange(sm.structMembers);
-                        break;
-                    }
-                }
+                Parser.Parser.StructMembers sm;
+                if (Parser.Parser.structMembers.TryGetValue(varType, out sm))
+                    members.AddRange(sm.structMembers);
             }
 
             foreach(HLSLDeclaration h in members)
