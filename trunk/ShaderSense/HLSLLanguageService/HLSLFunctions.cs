@@ -23,6 +23,8 @@ namespace Babel
      */
 	public class HLSLFunctions : Microsoft.VisualStudio.Package.Methods
 	{
+        public override bool TypePrefixed { get { return true; } }
+
 		IList<HLSLFunction> methods;
 		public HLSLFunctions(IList<HLSLFunction> methods)
 		{
