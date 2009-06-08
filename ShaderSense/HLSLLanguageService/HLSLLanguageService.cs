@@ -125,12 +125,12 @@ namespace Babel
         //  Parses starting from before line and col looking for the function name to look up
         private bool startMethodTip(Source source, AuthoringSink sink, int line, int col)
         {
-            TextSpan span = new TextSpan();
-            span.iStartLine = span.iEndLine = line;
             if (col <= 0)
             {
                 return false;
             }
+            TextSpan span = new TextSpan();
+            span.iStartLine = span.iEndLine = line;
             span.iStartIndex = col - 1;
             span.iEndIndex = col;
             string pStart = source.GetText(span);
