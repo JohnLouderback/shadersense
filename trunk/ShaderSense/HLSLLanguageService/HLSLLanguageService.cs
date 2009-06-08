@@ -65,7 +65,23 @@ namespace Babel
                     if (req.TokenInfo.Trigger == TokenTriggers.ParameterStart)
                     {
                         //  Trigger the method start if the trigger was a parameter start
-                        startMethodTip(source, req.Sink, req.Line, req.Col);
+                        KeyValuePair<TextSpan, string> method = new KeyValuePair<TextSpan, string>(new TextSpan(), "");
+                        foreach (KeyValuePair<TextSpan, string> funckv in Parser.Parser.funcNamesLocs)
+                        {
+                            if (TextSpanHelper.IsAfterEndOf(funckv.Key, req.Line, req.Col) && TextSpanHelper.StartsAfterEndOf(funckv.Key, method.Key))
+                                method = funckv;
+                        }
+                        bool isFunction = false;
+                        foreach (HLSLFunction func in Parser.Parser.methods)
+                        {
+                            if (method.Value.Equals(func.Name))
+                            {
+                                isFunction = true;
+                                break;
+                            }
+                        }
+                        if( isFunction )
+                            startMethodTip(source, req.Sink, req.Line, req.Col);
                     }
                     else
                     {
@@ -111,6 +127,10 @@ namespace Babel
         {
             TextSpan span = new TextSpan();
             span.iStartLine = span.iEndLine = line;
+            if (col <= 0)
+            {
+                return false;
+            }
             span.iStartIndex = col - 1;
             span.iEndIndex = col;
             string pStart = source.GetText(span);
