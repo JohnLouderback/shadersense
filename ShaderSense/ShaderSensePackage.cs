@@ -86,7 +86,7 @@ namespace Company.ShaderSense
         }
 
         private Babel.HLSLLanguageService _languageService;
-        private uint componentID;
+        private uint componentID = 0;
 
         /////////////////////////////////////////////////////////////////////////////
         // Overriden Package Implementation

@@ -604,8 +604,8 @@ PrefixOp
 
 
 Factor
-    : Identifier ParenArguments
-    | Identifier ParenArguments '.' Identifier
+    : Identifier ParenArguments		{ MarkIdentifierAsFunction($1, @1); }
+    | Identifier ParenArguments '.' Identifier		{ MarkIdentifierAsFunction($1, @1); }
     | INTRINSIC ParenArguments
     | INTRINSIC ParenArguments '.' IDENTIFIER
     | ScalarType ParenArguments
@@ -617,7 +617,7 @@ Factor
     
 Identifier
     : IDENTIFIER				  { AddIdentifierToCheck($1, @1); }
-    | IDENTIFIER ArrayIndex       { /*  */ }
+    | IDENTIFIER ArrayIndex       { AddIdentifierToCheck($1, @1); }
     | Identifier '.' IDENTIFIER	  { AddStructVarForCompletion($1, @1); }	
     | Identifier '.' error        { CallHdlr("expected identifier", @3);
 									AddStructVarForCompletion($1, @1); }

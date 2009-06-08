@@ -60,6 +60,7 @@
     <Compile Include="HLSLLanguageService\HLSLLineScanner.cs" />
     <Compile Include="HLSLLanguageService\HLSLLanguageService.cs" />
     <Compile Include="HLSLLanguageService\HLSLScopeUtils.cs" />
+    <Compile Include="HLSLLanguageService\HLSLTextMarkerClient.cs" />
     <Compile Include="HLSLLanguageService\Parser.cs" />
     <Compile Include="HLSLLanguageService\HLSLResolver.cs" />
     <Compile Include="ManagedBabel\Configuration.cs" />
