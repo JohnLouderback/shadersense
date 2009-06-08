@@ -67,6 +67,7 @@ void VS(in A2V IN, out V2P OUT)
     //Projected texture coordinates
     OUT.TexCoord2 = mul(IN.Position, TexTransform);
     blah = 1;
+    blah = func(5);
     
     //Transform model-space vertex position to screen space:
     OUT.Position = mul(IN.Position, WorldViewProj);

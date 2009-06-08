@@ -139,16 +139,30 @@ namespace Babel
             return this.scanner;
         }
 
+        private static HLSLIdentifierTextMarkerClient pIdentClient = new HLSLIdentifierTextMarkerClient();
+        private static HLSLFunctionTextMarkerClient pFuncClient = new HLSLFunctionTextMarkerClient();
         public override void OnParseComplete(ParseRequest req)
         {
             base.OnParseComplete(req);
 
-            List<TextSpan> errorLocs = new List<TextSpan>();
-            for (int i = 0; i < Parser.Parser.identifierNames.Count; i++)
+            IVsTextLines textlines;
+            req.View.GetBuffer(out textlines);
+            //Clean up the old textmarkers in case some of them are no longer needed
+            IVsEnumLineMarkers ppEnum;
+            textlines.EnumMarkers(0, 0, 0, 0, 0, (uint)(ENUMMARKERFLAGS.EM_ALLTYPES | ENUMMARKERFLAGS.EM_ENTIREBUFFER), out ppEnum);
+            IVsTextLineMarker ppRetval;
+            ppEnum.Next(out ppRetval);
+            while (ppRetval != null)
+            {
+                ppRetval.Invalidate();
+                ppEnum.Next(out ppRetval);
+            }
+
+            foreach( KeyValuePair<TextSpan, string> identkv in Parser.Parser.identNamesLocs)
             {
                 int line, col;
-                line = Parser.Parser.identifierLocs.ElementAt(i).iStartLine;
-                col = Parser.Parser.identifierLocs.ElementAt(i).iStartIndex;
+                line = identkv.Key.iStartLine;
+                col = identkv.Key.iStartIndex;
                 Dictionary<string, Parser.Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.Parser.VarDecl>();
                 Parser.Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
                 if (curCS == null)
@@ -157,15 +171,7 @@ namespace Babel
                 bool isValid = false;
                 foreach (KeyValuePair<string, Parser.Parser.VarDecl> kv in vars)
                 {
-                    if (kv.Key.Equals(Parser.Parser.identifierNames.ElementAt(i)))
-                    {
-                        isValid = true;
-                        break;
-                    }
-                }
-                foreach (HLSLFunction func in Parser.Parser.methods)
-                {
-                    if (func.Name.Equals(Parser.Parser.identifierNames.ElementAt(i)))
+                    if(kv.Key.Equals(identkv.Value))
                     {
                         isValid = true;
                         break;
@@ -174,25 +180,31 @@ namespace Babel
 
                 if (!isValid)
                 {
-                    errorLocs.Add(Parser.Parser.identifierLocs.ElementAt(i));
+                    TextSpan ts = identkv.Key;
+                    textlines.CreateLineMarker((int)MARKERTYPE.MARKER_CODESENSE_ERROR, ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex, pIdentClient, null);
                 }
             }
 
-            IVsTextLines textlines; // = new VsTextBufferClass();
-            req.View.GetBuffer(out textlines);
-            //Clean up the old textmarkers in case some of them are no longer needed
-            IVsEnumLineMarkers ppEnum;
-            textlines.EnumMarkers(0, 0, 0, 0, 0, (uint)(ENUMMARKERFLAGS.EM_ALLTYPES | ENUMMARKERFLAGS.EM_ENTIREBUFFER), out ppEnum);
-            IVsTextLineMarker ppRetval;
-            ppEnum.Next(out ppRetval);
-            while( ppRetval != null )
+            foreach (KeyValuePair<TextSpan, string> funckv in Parser.Parser.funcNamesLocs)
             {
-                ppRetval.Invalidate();
-                ppEnum.Next(out ppRetval);
-            }
-            foreach (TextSpan ts in errorLocs)
-            {
-                textlines.CreateLineMarker((int)MARKERTYPE.MARKER_CODESENSE_ERROR, ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex, null, null);
+                int line, col;
+                line = funckv.Key.iStartLine;
+                col = funckv.Key.iStartIndex;
+                bool isValid = false;
+                foreach (HLSLFunction func in Parser.Parser.methods)
+                {
+                    if (func.Name.Equals(funckv.Value))
+                    {
+                        isValid = true;
+                        break;
+                    }
+                }
+
+                if (!isValid)
+                {
+                    TextSpan ts = funckv.Key;
+                    textlines.CreateLineMarker((int)MARKERTYPE.MARKER_CODESENSE_ERROR, ts.iStartLine, ts.iStartIndex, ts.iEndLine, ts.iEndIndex, pFuncClient, null);
+                }
             }
         }
     }

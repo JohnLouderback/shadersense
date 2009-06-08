@@ -56,8 +56,8 @@ namespace Babel.Parser
         public static Dictionary<string, StructMembers> structMembers = new Dictionary<string, StructMembers>();
         public static List<HLSLDeclaration> typedefTypes = new List<HLSLDeclaration>();
         public static CodeScope programScope;
-        public static List<string> identifierNames = new List<string>();
-        public static List<TextSpan> identifierLocs = new List<TextSpan>();
+        public static Dictionary<TextSpan, string> identNamesLocs = new Dictionary<TextSpan, string>();
+        public static Dictionary<TextSpan, string> funcNamesLocs = new Dictionary<TextSpan, string>();
         private static Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
         public static Dictionary<TextSpan, LexValue> structVars = new Dictionary<TextSpan, LexValue>();
 
@@ -269,10 +269,10 @@ namespace Babel.Parser
             Parser.programScope = null;
             Parser.tempVars.Clear();
             Parser.globalVars.Clear();
-            Parser.identifierLocs.Clear();
-            Parser.identifierNames.Clear();
             Parser.forLoopVars.Clear();
             Parser.structVars.Clear();
+            Parser.identNamesLocs.Clear();
+            Parser.funcNamesLocs.Clear();
         }
 
         //Determines whether the parser should add declarations or not
@@ -289,8 +289,15 @@ namespace Babel.Parser
 
         public void AddIdentifierToCheck(LexValue identifier, LexLocation idenLoc)
         {
-            identifierNames.Add(identifier.str);
-            identifierLocs.Add(MkTSpan(idenLoc));
+            identNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
+        }
+
+        public void MarkIdentifierAsFunction(LexValue identifier, LexLocation idenLoc)
+        {
+            if(identNamesLocs.ContainsKey(MkTSpan(idenLoc)))
+                identNamesLocs.Remove(MkTSpan(idenLoc));
+
+            funcNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
         }
 
         //Need to defer the checking of the for loop scope until the scope it is in finishes parsing
