@@ -626,6 +626,8 @@ Identifier
     
 ArrayIndex
 	: '[' Factor ']'			  { Match(@1, @3); }
+	| '[' Factor ']' '[' Factor ']'		{ Match(@1, @3);
+										  Match(@4, @6); }
 	;
 	
 TechniqueBlock

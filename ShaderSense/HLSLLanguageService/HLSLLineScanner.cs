@@ -42,12 +42,14 @@ namespace Babel
         private const char paramStartChar = '(';
         private const char paramNextChar = ',';
         private const char paramEndChar = ')';
+#if !NOTTEST
         string testFileOutput;
+#endif
 
         public HLSLLineScanner()
         {
             this.lex = new Babel.Lexer.Scanner();
-            
+#if !NOTTEST           
             //get the current working directory, we will need to reset this late
             string resetDir = Directory.GetCurrentDirectory();
 
@@ -73,6 +75,7 @@ namespace Babel
             }
 
             Directory.SetCurrentDirectory(resetDir);
+#endif
             //System.Windows.Forms.MessageBox.Show("File is: " + testFileOutput);           
         }
 
@@ -130,6 +133,18 @@ namespace Babel
                 {
                     tokenInfo.Trigger = TokenTriggers.ParameterEnd;
                 }
+                else if (token == (int)Tokens.IDENTIFIER)
+                {
+                    tokenInfo.Trigger |= TokenTriggers.MemberSelect;
+                }
+                else if (token == (int)Tokens.INTRINSIC)
+                {
+                    tokenInfo.Trigger |= TokenTriggers.MemberSelect;
+                }
+                else if (token >= (int)Tokens.KWBLENDSTATE && token <= (int)Tokens.RWVIRTUAL)
+                {
+                    tokenInfo.Trigger |= TokenTriggers.MemberSelect;
+                }
                 return retVal;
             }
             else
@@ -153,9 +168,11 @@ namespace Babel
         /// <param name="end">End index of token</param>
         /// <returns>True on success, false otherwise</returns>
         private bool processToken(TokenInfo tokenInfo, int token, int start, int end)
-        {            
+        {
+#if !NOTTEST
             FileStream f = new FileStream(testFileOutput, FileMode.Append, FileAccess.Write);
             StreamWriter sw = new StreamWriter(f);
+#endif
 
             Configuration.TokenDefinition definition = Configuration.GetDefinition(token);
             tokenInfo.StartIndex = start;
@@ -164,9 +181,11 @@ namespace Babel
             tokenInfo.Type = definition.TokenType;
             tokenInfo.Trigger = definition.TokenTriggers;
 
+#if !NOTTEST
             //write these stuff to an output file for testing
             sw.WriteLine(tokenInfo.Type + " " + tokenInfo.Color);
             sw.Close();
+#endif
             return true;
         }
     }

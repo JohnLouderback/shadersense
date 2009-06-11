@@ -50,6 +50,7 @@ namespace Babel
         public override Microsoft.VisualStudio.Package.AuthoringScope ParseSource(ParseRequest req)
         {
            Source source = (Source)this.GetSource(req.FileName);
+           string path = source.GetFilePath();
 
             if( req.Reason == ParseReason.Check )
                 req.Callback = OnParseComplete;
@@ -227,5 +228,6 @@ namespace Babel
                 }
             }
         }
+
     }
 }

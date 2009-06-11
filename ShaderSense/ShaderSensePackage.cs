@@ -69,7 +69,8 @@ namespace Company.ShaderSense
         EnableCommenting=true,
         MatchBraces=true,
         ShowCompletion=true,
-        ShowMatchingBrace=true
+        ShowMatchingBrace=true,
+        MatchBracesAtCaret=true
     )]
     public sealed class ShaderSensePackage : Package, IOleComponent
     {
