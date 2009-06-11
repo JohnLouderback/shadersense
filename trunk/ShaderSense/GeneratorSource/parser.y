@@ -490,8 +490,8 @@ ForHeader
 ForBlock
     : AssignExpr ';' Expr ';' AssignExpr				{ $$ = Lexify(string.Empty); }
     | ScalarType AssignExpr ';' Expr ';' AssignExpr		{ $$ = Lexify($1.str + " " + $2.str); }
-    | ScalarType AssignExpr ';' error
-    | ScalarType AssignExpr ';' Expr ';' error
+    | ScalarType AssignExpr ';' error					{ AddVariable($2, $1, @2); }
+    | ScalarType AssignExpr ';' Expr ';' error			{ AddVariable($2, $1, @2); }
     ;
 
 SemiStatement
