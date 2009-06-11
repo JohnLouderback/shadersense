@@ -45,11 +45,8 @@ namespace Babel.Parser
 
         public static IList<Babel.HLSLFunction> methods = new List<Babel.HLSLFunction>();
         private static List<HLSLDeclaration> tempMembers = new List<HLSLDeclaration>();
-        private static List<CodeScope> tempScopes = new List<CodeScope>();
-        private static Stack<Dictionary<string, VarDecl>> tempScopeVarStack = new Stack<Dictionary<string, VarDecl>>();
         private static CodeScope tempCurScope = null;
         private static CodeScope tempLastScope = null;
-        private static Dictionary<string, VarDecl> tempVars = new Dictionary<string, VarDecl>();
         private static Dictionary<string, VarDecl> tempFunctionVars = new Dictionary<string, VarDecl>();
         public static Dictionary<string, VarDecl> globalVars = new Dictionary<string, VarDecl>();
         public static List<HLSLDeclaration> structDecls = new List<HLSLDeclaration>();
@@ -93,7 +90,7 @@ namespace Babel.Parser
             public CodeScope(TextSpan loc)
             {
                 innerScopes = new List<CodeScope>();
-                scopeVars = null;
+                scopeVars = new Dictionary<string,VarDecl>();
                 scopeLocation = loc;
                 outer = null;
             }
@@ -123,19 +120,12 @@ namespace Babel.Parser
             CodeScope scope = new CodeScope(MkTSpan(loc));
             scope.outer = tempCurScope;
             tempCurScope.innerScopes.Add(scope);
-            Dictionary<string, VarDecl> vars = new Dictionary<string, VarDecl>(tempVars);
-            tempScopeVarStack.Push(vars);
-            tempVars.Clear();
-            tempVars = new Dictionary<string, VarDecl>();
             tempCurScope = scope;
         }
 
         public void EndScope(LexLocation loc)
         {
             tempCurScope.scopeLocation = TextSpanHelper.Merge(tempCurScope.scopeLocation, MkTSpan(loc));
-            tempCurScope.scopeVars = new Dictionary<string, VarDecl>(tempVars);
-            tempVars.Clear();
-            tempVars = new Dictionary<string, VarDecl>(tempScopeVarStack.Pop());
 
             Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> deferred = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
             foreach (KeyValuePair<TextSpan, KeyValuePair<TextSpan, LexValue>> kv in forLoopVars)
@@ -155,12 +145,6 @@ namespace Babel.Parser
             
         }
 
-        //Creates the main program scope that includes functions and global variables
-        public void AddProgramScope(LexLocation loc)
-        {
-            programScope.scopeVars = new Dictionary<string, VarDecl>(globalVars);
-        }
-
         //Records a variable declaration that will later get added to a scope
         public void AddVariable(LexValue varName, LexValue type, LexLocation loc)
         {
@@ -170,17 +154,7 @@ namespace Babel.Parser
             }
             HLSLDeclaration newDecl = new Babel.HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
 
-            tempVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
-        }
-
-        //Tells the parser to add the last added variable declaration as a global var
-        public void AddVarAsGlobal()
-        {
-            if (tempVars.Count != 0)
-            {
-                globalVars.Add(tempVars.ElementAt(0).Key, tempVars.ElementAt(0).Value);
-                tempVars.Clear();
-            }
+            tempCurScope.scopeVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
         }
 
         public void AddFunctionParamVar(LexValue varName, LexValue type, LexLocation loc)
@@ -265,9 +239,7 @@ namespace Babel.Parser
             Parser.structMembers.Clear();
             Parser.typedefTypes.Clear();
             Parser.methods.Clear();
-            Parser.tempScopes.Clear();
             Parser.programScope = null;
-            Parser.tempVars.Clear();
             Parser.globalVars.Clear();
             Parser.forLoopVars.Clear();
             Parser.structVars.Clear();
@@ -350,6 +322,7 @@ namespace Babel.Parser
             }
         }
 
+        //Used for locating the struct var that precedes the dot that triggered a MemberSelect operation
         public void AddStructVarForCompletion(LexValue varName, LexLocation loc)
         {
             structVars.Add(MkTSpan(loc), varName);

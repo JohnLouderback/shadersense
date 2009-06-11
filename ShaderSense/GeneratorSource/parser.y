@@ -94,7 +94,7 @@
 %%
 
 Program
-    : Declarations				{ AddProgramScope(@1); }
+    : Declarations				{ /*AddProgramScope(@1);*/ }
     ;
 
 Declarations
@@ -158,10 +158,10 @@ SimpleDeclaration
 
 
 SemiDeclaration
-    : VariableDeclaration						{ AddVarAsGlobal(); }
+    : VariableDeclaration						{ /*AddVarAsGlobal();*/ }
     | KWSTRUCT IDENTIFIER StructBlock			{ AddStructType($2); }
     | SamplerType IDENTIFIER '=' SamplerBlock		{ AddVariable($2, $1, @2);
-												  AddVarAsGlobal(); }
+												  /*AddVarAsGlobal();*/ }
     | KWTYPEDEF Type IDENTIFIER					{ AddTypedefType($2, $3); }
     ;
     
