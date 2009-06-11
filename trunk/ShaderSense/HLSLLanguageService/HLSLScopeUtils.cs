@@ -32,6 +32,11 @@ namespace Babel
     class HLSLScopeUtils
     {
         //get the current scope of the cursor
+        public static Parser.Parser.CodeScope GetCurrentScope(int line, int col)
+        {
+            return GetCurrentScope(Parser.Parser.programScope, line, col);
+        }
+
         public static Parser.Parser.CodeScope GetCurrentScope(Parser.Parser.CodeScope codeScope, int line, int col)
         {
             foreach (Parser.Parser.CodeScope cs in codeScope.innerScopes)
@@ -46,7 +51,7 @@ namespace Babel
                 }
             }
 
-            return null;
+            return codeScope;
         }
 
         //gets the variables that are valid within the given scope

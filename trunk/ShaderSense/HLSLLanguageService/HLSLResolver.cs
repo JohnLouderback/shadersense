@@ -37,6 +37,60 @@ namespace Babel
 		#region IASTResolver Members
         public Source _source;
 
+        private static string[] keywordTypes = { "int", "bool", "float", "half", "double", "uint", 
+                                                   "buffer", "vector", "matrix", "texture", "sampler", "void" };
+
+        private static string[] preprocessorTokens = { "#define", "#elif", "#else", "#endif", "#error", "#if",
+                                                         "#ifdef", "#ifndef", "#include", "#line", "#undef" };
+
+        private bool ShouldAddDecls(string text, int line, int col)
+        {
+            string lineText = _source.GetText(line, 0, line, col);
+            lineText = lineText.Trim();
+            char[] splitchars = { ' ', '\t', '(', ',', ';' };
+            string[] tokens = lineText.Split(splitchars);
+            if (tokens.Length < 2)
+                return true;
+
+            string prevToken = tokens[tokens.Length - 2]; //-1 gives cur token, -2 gives prev token
+            bool isType = false;
+            foreach (string s in keywordTypes)
+            {
+                if (prevToken.StartsWith(s))
+                {
+                    isType = true;
+                    break;
+                }
+            }
+            if (!isType)
+            {
+                foreach (HLSLDeclaration decl in Parser.Parser.structDecls)
+                {
+                    if (prevToken.StartsWith(decl.Name))
+                    {
+                        isType = true;
+                        break;
+                    }
+                }
+            }
+            if (!isType)
+            {
+                foreach (HLSLDeclaration decl in Parser.Parser.typedefTypes)
+                {
+                    if (prevToken.StartsWith(decl.Name))
+                    {
+                        isType = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isType && (Char.IsLetter(text, 0) || text[0].Equals('_')))
+                return true;
+            else
+                return false;
+        }
+
         //Gets a list of things to put in the auto-completion list, including keywords, intrinsics,
         //variables, types, and functions
 		public IList<Babel.HLSLDeclaration> FindCompletions(object result, int line, int col)
@@ -45,43 +99,88 @@ namespace Babel
             List<Babel.HLSLDeclaration> declarations = new List<Babel.HLSLDeclaration>();
             string currentText = result.ToString();
 
+            /*if (currentText.Equals("#"))
+            {
+                foreach (string s in preprocessorTokens)
+                {
+                    declarations.Add(new HLSLDeclaration(s, s, 6 * 9, s));
+                }
+
+                return declarations;
+            }*/
+
+            if (!ShouldAddDecls(currentText, line, col))
+                return declarations;
+
+
+            bool isGlobalScope = false;
+            Parser.Parser.CodeScope scope = HLSLScopeUtils.GetCurrentScope(line, col);
+            if (scope == Parser.Parser.programScope)
+                isGlobalScope = true;
+
             //  Adding predefined keyword commands
             foreach (string command in Babel.Lexer.Scanner.Commands)
             {
-                if (currentText == string.Empty || command.StartsWith(currentText, StringComparison.CurrentCultureIgnoreCase))
+                int glyph = 206;
+                //if (currentText == string.Empty || command.StartsWith(currentText, StringComparison.CurrentCultureIgnoreCase))
+                if (!isGlobalScope)
                 {
-
-                    declarations.Add(new Babel.HLSLDeclaration(Babel.Lexer.Scanner.GetDescriptionForTokenValue(command), command, 0, command));
+                    foreach (string s in keywordTypes)
+                    {
+                        if (command.StartsWith(s))
+                        {
+                            glyph = 6 * 21;
+                            break;
+                        }
+                    }
+                    declarations.Add(new Babel.HLSLDeclaration(Babel.Lexer.Scanner.GetDescriptionForTokenValue(command), command, glyph, command));
+                }
+                else
+                {
+                    foreach (string s in keywordTypes)
+                    {
+                        if(command.StartsWith(s))
+                            declarations.Add(new Babel.HLSLDeclaration(Babel.Lexer.Scanner.GetDescriptionForTokenValue(command), command, 6 * 21, command));
+                    }
                 }
             }
-            // Add predefined intrinsics
-            foreach (string intrin in Babel.Lexer.Scanner.Intrinsics)
+            
+            if (!isGlobalScope)
             {
-                if (currentText == string.Empty || intrin.StartsWith(currentText, StringComparison.CurrentCultureIgnoreCase))
+                // Add predefined intrinsics
+                foreach (string intrin in Babel.Lexer.Scanner.Intrinsics)
                 {
-                    declarations.Add(new Babel.HLSLDeclaration(Babel.Lexer.Scanner.GetDescriptionForTokenValue(intrin), intrin, 6 * 25, intrin));
+                    //if (currentText == string.Empty || intrin.StartsWith(currentText, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        declarations.Add(new Babel.HLSLDeclaration(Babel.Lexer.Scanner.GetDescriptionForTokenValue(intrin), intrin, 6 * 25, intrin));
+                    }
                 }
-            }
 
-            //  Add variable declarations
-            Parser.Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
-            if (curCS == null)
-                curCS = Parser.Parser.programScope;
+                //  Add function declarations
+                foreach (HLSLFunction method in Parser.Parser.methods)
+                {
+                    //if (currentText == string.Empty || method.Name.StartsWith(currentText, true, null))
+                    {
+                        declarations.Add(methodToDeclaration(method));
+                    }
+                }
 
-            Dictionary<string, Parser.Parser.VarDecl> vars = new Dictionary<string,Babel.Parser.Parser.VarDecl>();
-            HLSLScopeUtils.GetVarDecls(curCS, vars);
+                //  Add variable declarations
+                Dictionary<string, Parser.Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.Parser.VarDecl>();
+                HLSLScopeUtils.GetVarDecls(scope, vars);
 
-            //Add the variables to the list
-            foreach (KeyValuePair<string, Parser.Parser.VarDecl> kv in vars)
-            {
-                if (currentText == string.Empty || kv.Key.StartsWith(currentText, StringComparison.CurrentCultureIgnoreCase))
+                //Add the variables to the list
+                foreach (KeyValuePair<string, Parser.Parser.VarDecl> kv in vars)
+                {
+                    //if (currentText == string.Empty || kv.Key.StartsWith(currentText, StringComparison.CurrentCultureIgnoreCase))
                     declarations.Add(kv.Value.varDeclaration);
+                }
             }
 
             //  Add struct declarations
             foreach (HLSLDeclaration d in Parser.Parser.structDecls)
             {
-                if (currentText == string.Empty || d.Name.StartsWith(currentText))
+                //if (currentText == string.Empty || d.Name.StartsWith(currentText))
                 {
                     declarations.Add(d);
                 }
@@ -90,18 +189,9 @@ namespace Babel
             //  Add type definitions
             foreach (HLSLDeclaration d in Parser.Parser.typedefTypes)
             {
-                if (currentText == string.Empty || d.Name.StartsWith(currentText))
+                //if (currentText == string.Empty || d.Name.StartsWith(currentText))
                 {
                     declarations.Add(d);
-                }
-            }
-           
-            //  Add function declarations
-            foreach (HLSLFunction method in Parser.Parser.methods)
-            {
-                if (currentText == string.Empty || method.Name.StartsWith(currentText, true, null))
-                {   
-                    declarations.Add(methodToDeclaration(method));
                 }
             }
 

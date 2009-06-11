@@ -75,7 +75,19 @@ namespace Babel
         public override Microsoft.VisualStudio.Package.Declarations GetDeclarations(IVsTextView view, int line, int col, TokenInfo info, ParseReason reason)
         {
             string currentCommand;
-            int hResult = view.GetTextStream(line, info.StartIndex, line, info.EndIndex, out currentCommand);
+            string startChar;
+            //int hResult = view.GetTextStream(line, info.StartIndex, line, info.EndIndex, out currentCommand);
+            //int hResult = view.GetTextStream(line, info.StartIndex, line, col, out currentCommand);
+            TextSpan[] ts = new TextSpan[1];
+            ts[0] = new TextSpan();
+            view.GetWordExtent(line, info.StartIndex, (uint)(WORDEXTFLAGS.WORDEXT_FINDTOKEN), ts);
+            int hResult = view.GetTextStream(line, ts[0].iStartIndex, line, ts[0].iEndIndex, out currentCommand);
+            if (ts[0].iStartIndex > 0)
+            {
+                view.GetTextStream(line, ts[0].iStartIndex - 1, line, ts[0].iStartIndex, out startChar);
+                if (startChar.Equals("#"))
+                    currentCommand = startChar;
+            }
 
 
             ((HLSLResolver)resolver)._source = _source;
@@ -88,7 +100,10 @@ namespace Babel
                 case ParseReason.DisplayMemberList:
                 case ParseReason.MemberSelect:
                 case ParseReason.MemberSelectAndHighlightBraces:
-                    declarations = resolver.FindMembers(parseResult, line, col);
+                    if(currentCommand.Equals("."))
+                        declarations = resolver.FindMembers(parseResult, line, col);
+                    else
+                        declarations = resolver.FindCompletions(currentCommand, line, col);
                     break;
                 default:
                     throw new ArgumentException("reason");

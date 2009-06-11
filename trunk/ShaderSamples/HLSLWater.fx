@@ -63,11 +63,13 @@ void VS(in A2V IN, out V2P OUT)
     //Copy normal map texture coordinates through
     OUT.TexCoord0 = IN.TexCoord0 + float2(TexScroll, 0.0f);
     OUT.TexCoord1 = IN.TexCoord0 + float2(0.0f, TexScroll);
-    
+
     //Projected texture coordinates
     OUT.TexCoord2 = mul(IN.Position, TexTransform);
     blah = 1;
     blah = func(5);
+    float3x3 grr;
+    grr[1][1] = 0;
     
     //Transform model-space vertex position to screen space:
     OUT.Position = mul(IN.Position, WorldViewProj);
