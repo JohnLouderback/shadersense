@@ -47,6 +47,9 @@ namespace Babel
         {
             string lineText = _source.GetText(line, 0, line, col);
             lineText = lineText.Trim();
+            if (lineText.Length > 0 && lineText[lineText.Length - 1] == ';')
+                return true;
+
             char[] splitchars = { ' ', '\t', '(', ',', ';' };
             string[] tokens = lineText.Split(splitchars);
             if (tokens.Length < 2)
