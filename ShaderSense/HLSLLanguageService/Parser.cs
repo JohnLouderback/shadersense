@@ -152,9 +152,12 @@ namespace Babel.Parser
             {
                 return;
             }
-            HLSLDeclaration newDecl = new Babel.HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
+            if (varName.str != null)
+            {
+                HLSLDeclaration newDecl = new Babel.HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
 
-            tempCurScope.scopeVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
+                tempCurScope.scopeVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
+            }
         }
 
         public void AddFunctionParamVar(LexValue varName, LexValue type, LexLocation loc)
