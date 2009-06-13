@@ -35,6 +35,60 @@ namespace Babel.Parser
      * Also contains code for determining scope of data, and whether the variable/function/member
      * is relevant in the specified scope.
      */
+
+    //used to represent a variable declaration
+    public class VarDecl
+    {
+        public HLSLDeclaration varDeclaration;
+        public TextSpan varLocation;
+
+        public VarDecl(HLSLDeclaration decl, TextSpan loc)
+        {
+            varDeclaration = decl;
+            varLocation = loc;
+        }
+    }
+
+    //used to represent a code scope
+    public class CodeScope
+    {
+        public List<CodeScope> innerScopes;
+        public Dictionary<string, VarDecl> scopeVars;
+        public TextSpan scopeLocation;
+        public CodeScope outer;
+
+        public CodeScope(Dictionary<string, VarDecl> vars, TextSpan loc)
+        {
+            innerScopes = new List<CodeScope>();
+            scopeVars = new Dictionary<string, VarDecl>(vars);
+            scopeLocation = loc;
+            outer = null;
+        }
+
+        public CodeScope(TextSpan loc)
+        {
+            innerScopes = new List<CodeScope>();
+            scopeVars = new Dictionary<string, VarDecl>();
+            scopeLocation = loc;
+            outer = null;
+        }
+    }
+
+    //used to store members of a struct
+    public class StructMembers
+    {
+        public string structName;
+        public List<HLSLDeclaration> structMembers;
+        public HLSLDeclaration structDecl;
+
+        public StructMembers(string name, List<HLSLDeclaration> members, HLSLDeclaration decl)
+        {
+            structName = name;
+            structMembers = new List<HLSLDeclaration>(members);
+            structDecl = decl;
+        }
+    }
+
     public partial class Parser
     {
         const int GLYPHBASE = 6;
@@ -49,8 +103,8 @@ namespace Babel.Parser
         private static CodeScope tempLastScope = null;
         private static Dictionary<string, VarDecl> tempFunctionVars = new Dictionary<string, VarDecl>();
         public static Dictionary<string, VarDecl> globalVars = new Dictionary<string, VarDecl>();
-        public static List<HLSLDeclaration> structDecls = new List<HLSLDeclaration>();
-        public static Dictionary<string, StructMembers> structMembers = new Dictionary<string, StructMembers>();
+//        public static List<HLSLDeclaration> structDecls = new List<HLSLDeclaration>();
+        public static Dictionary<string, StructMembers> structDecls = new Dictionary<string, StructMembers>();
         public static List<HLSLDeclaration> typedefTypes = new List<HLSLDeclaration>();
         public static CodeScope programScope;
         public static Dictionary<TextSpan, string> identNamesLocs = new Dictionary<TextSpan, string>();
@@ -58,56 +112,8 @@ namespace Babel.Parser
         private static Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
         public static Dictionary<TextSpan, LexValue> structVars = new Dictionary<TextSpan, LexValue>();
 
-        //used to represent a variable declaration
-        public class VarDecl
-        {
-            public HLSLDeclaration varDeclaration;
-            public TextSpan varLocation;
 
-            public VarDecl(HLSLDeclaration decl, TextSpan loc)
-            {
-                varDeclaration = decl;
-                varLocation = loc;
-            }
-        }
-
-        //used to represent a code scope
-        public class CodeScope
-        {
-            public List<CodeScope> innerScopes;
-            public Dictionary<string, VarDecl> scopeVars;
-            public TextSpan scopeLocation;
-            public CodeScope outer;
-
-            public CodeScope(Dictionary<string, VarDecl> vars, TextSpan loc)
-            {
-                innerScopes = new List<CodeScope>();
-                scopeVars = new Dictionary<string, VarDecl>(vars);
-                scopeLocation = loc;
-                outer = null;
-            }
-
-            public CodeScope(TextSpan loc)
-            {
-                innerScopes = new List<CodeScope>();
-                scopeVars = new Dictionary<string,VarDecl>();
-                scopeLocation = loc;
-                outer = null;
-            }
-        }
-
-        //used to store members of a struct
-        public class StructMembers
-        {
-            public string structName;
-            public List<HLSLDeclaration> structMembers;
-
-            public StructMembers(string name, List<HLSLDeclaration> members)
-            {
-                structName = name;
-                structMembers = new List<HLSLDeclaration>(members);
-            }
-        }
+        
 
         public static void PrepareParse(TextSpan programLoc)
         {
@@ -174,8 +180,8 @@ namespace Babel.Parser
                 return;
             }
             HLSLDeclaration structDecl = new HLSLDeclaration("struct", loc.str, GLYPHSTRUCT, loc.str);
-            structDecls.Add(structDecl);
-            structMembers.Add(loc.str, new StructMembers(loc.str, tempMembers));
+//            structDecls.Add(structDecl);
+            structDecls.Add(loc.str, new StructMembers(loc.str, tempMembers, structDecl));
             tempMembers.Clear();
         }
 
@@ -238,8 +244,8 @@ namespace Babel.Parser
         //Called before the new parse starts; clears the current lists
         public static void clearDeclarations()
         {
+//            Parser.structDecls.Clear();
             Parser.structDecls.Clear();
-            Parser.structMembers.Clear();
             Parser.typedefTypes.Clear();
             Parser.methods.Clear();
             Parser.programScope = null;

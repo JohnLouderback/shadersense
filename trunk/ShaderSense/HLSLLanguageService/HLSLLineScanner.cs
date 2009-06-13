@@ -38,6 +38,7 @@ namespace Babel
     {
         //Babel.ParserGenerator.IColorScan lex = null;
         Babel.Lexer.Scanner lex = null;
+        HLSLLanguageService _service;
         private const char memberSelectChar = '.';
         private const char paramStartChar = '(';
         private const char paramNextChar = ',';
@@ -46,9 +47,10 @@ namespace Babel
         string testFileOutput;
 #endif
 
-        public HLSLLineScanner()
+        public HLSLLineScanner(HLSLLanguageService service)
         {
             this.lex = new Babel.Lexer.Scanner();
+            _service = service;
 #if !NOTTEST           
             //get the current working directory, we will need to reset this late
             string resetDir = Directory.GetCurrentDirectory();
@@ -157,6 +159,7 @@ namespace Babel
         public void SetSource(string source, int offset)
         {
             lex.SetSource(source, offset);
+            lex.SetCurrentSource((Babel.HLSLSource)(_service.GetSource(_service.LastActiveTextView)));
         }
         
         /// <summary>

@@ -46,6 +46,11 @@ namespace Babel
             return Babel.Configuration.FormatList;
         }
 
+        public override Microsoft.VisualStudio.Package.Source CreateSource(IVsTextLines buffer)
+        {
+            return new HLSLSource(this, buffer, this.GetColorizer(buffer));
+        }
+
         //parses the source
         public override Microsoft.VisualStudio.Package.AuthoringScope ParseSource(ParseRequest req)
         {
@@ -59,6 +64,9 @@ namespace Babel
                 case ParseReason.QuickInfo:
                     return new HLSLAuthoringScope(source);
                 case ParseReason.CompleteWord:
+//                case ParseReason.DisplayMemberList:
+//                case ParseReason.MemberSelect:
+//                case ParseReason.MemberSelectAndHighlightBraces:
                     return new HLSLAuthoringScope(source);
                 case ParseReason.MethodTip:
                     HLSLAuthoringScope scope = (HLSLAuthoringScope)base.ParseSource(req);
@@ -155,7 +163,7 @@ namespace Babel
         public override IScanner GetScanner(IVsTextLines buffer)
         {
             if (scanner == null)
-                this.scanner = new HLSLLineScanner();
+                this.scanner = new HLSLLineScanner(this);
 
             return this.scanner;
         }
@@ -184,13 +192,13 @@ namespace Babel
                 int line, col;
                 line = identkv.Key.iStartLine;
                 col = identkv.Key.iStartIndex;
-                Dictionary<string, Parser.Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.Parser.VarDecl>();
-                Parser.Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
+                Dictionary<string, Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.VarDecl>();
+                Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
                 if (curCS == null)
                     curCS = Parser.Parser.programScope;
                 HLSLScopeUtils.GetVarDecls(curCS, vars);
                 bool isValid = false;
-                foreach (KeyValuePair<string, Parser.Parser.VarDecl> kv in vars)
+                foreach (KeyValuePair<string, Parser.VarDecl> kv in vars)
                 {
                     if(kv.Key.Equals(identkv.Value))
                     {
