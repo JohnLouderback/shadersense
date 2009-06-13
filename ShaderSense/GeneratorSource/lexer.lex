@@ -85,9 +85,11 @@
 	
 	bool IsStructIdent(string text)
 	{
-		foreach(HLSLDeclaration structIdent in Parser.Parser.structDecls)
+		//foreach(HLSLDeclaration structIdent in Parser.Parser.structDecls)
+		foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
 	    {
-			if( text.Equals(structIdent.Name))
+			//if( text.Equals(structIdent.Name))
+			if(text.Equals(kv.Key))
 			{
 				return true;
 			}
@@ -446,5 +448,9 @@ VecMat	([1-4](([xX][1-4])?))?
 %}
 
 %%
-
+	Babel.HLSLSource _source;
+	public void SetCurrentSource(Babel.HLSLSource source)
+	{
+		_source = source;
+	}
 /* .... */

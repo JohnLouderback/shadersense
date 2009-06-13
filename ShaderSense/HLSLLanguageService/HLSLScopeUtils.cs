@@ -32,18 +32,18 @@ namespace Babel
     class HLSLScopeUtils
     {
         //get the current scope of the cursor
-        public static Parser.Parser.CodeScope GetCurrentScope(int line, int col)
+        public static Parser.CodeScope GetCurrentScope(int line, int col)
         {
             return GetCurrentScope(Parser.Parser.programScope, line, col);
         }
 
-        public static Parser.Parser.CodeScope GetCurrentScope(Parser.Parser.CodeScope codeScope, int line, int col)
+        public static Parser.CodeScope GetCurrentScope(Parser.CodeScope codeScope, int line, int col)
         {
-            foreach (Parser.Parser.CodeScope cs in codeScope.innerScopes)
+            foreach (Parser.CodeScope cs in codeScope.innerScopes)
             {
                 if (TextSpanHelper.ContainsExclusive(cs.scopeLocation, line, col))
                 {
-                    Parser.Parser.CodeScope recursive = GetCurrentScope(cs, line, col);
+                    Parser.CodeScope recursive = GetCurrentScope(cs, line, col);
                     if (recursive == null)
                         return cs;
                     else
@@ -55,9 +55,9 @@ namespace Babel
         }
 
         //gets the variables that are valid within the given scope
-        public static void GetVarDecls(Parser.Parser.CodeScope scope, Dictionary<string, Parser.Parser.VarDecl> varDecls)
+        public static void GetVarDecls(Parser.CodeScope scope, Dictionary<string, Parser.VarDecl> varDecls)
         {
-            foreach (KeyValuePair<string, Parser.Parser.VarDecl> vd in scope.scopeVars)
+            foreach (KeyValuePair<string, Parser.VarDecl> vd in scope.scopeVars)
                 varDecls.Add(vd.Key, vd.Value);
 
             if (scope.outer != null)
@@ -66,9 +66,9 @@ namespace Babel
 
         //If it returns true, scope contains the scope that has the matching TextSpan
         //If it returns false, scope contains the scope that TextSpan ts would be contained in
-        public static bool HasScopeForSpan(TextSpan ts, Parser.Parser.CodeScope globalScope, out Parser.Parser.CodeScope scope)
+        public static bool HasScopeForSpan(TextSpan ts, Parser.CodeScope globalScope, out Parser.CodeScope scope)
         {
-            foreach (Parser.Parser.CodeScope cs in globalScope.innerScopes)
+            foreach (Parser.CodeScope cs in globalScope.innerScopes)
             {
                 if (TextSpanHelper.IsSameSpan(ts, cs.scopeLocation))
                 {

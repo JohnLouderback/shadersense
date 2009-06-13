@@ -67,9 +67,11 @@ namespace Babel
             }
             if (!isType)
             {
-                foreach (HLSLDeclaration decl in Parser.Parser.structDecls)
+                //foreach (HLSLDeclaration decl in Parser.Parser.structDecls)
+                foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
                 {
-                    if (prevToken.StartsWith(decl.Name))
+                    //if (prevToken.StartsWith(decl.Name))
+                    if(prevToken.StartsWith(kv.Key))
                     {
                         isType = true;
                         break;
@@ -117,7 +119,7 @@ namespace Babel
 
 
             bool isGlobalScope = false;
-            Parser.Parser.CodeScope scope = HLSLScopeUtils.GetCurrentScope(line, col);
+            Parser.CodeScope scope = HLSLScopeUtils.GetCurrentScope(line, col);
             if (scope == Parser.Parser.programScope)
                 isGlobalScope = true;
 
@@ -169,11 +171,11 @@ namespace Babel
                 }
 
                 //  Add variable declarations
-                Dictionary<string, Parser.Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.Parser.VarDecl>();
+                Dictionary<string, Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.VarDecl>();
                 HLSLScopeUtils.GetVarDecls(scope, vars);
 
                 //Add the variables to the list
-                foreach (KeyValuePair<string, Parser.Parser.VarDecl> kv in vars)
+                foreach (KeyValuePair<string, Parser.VarDecl> kv in vars)
                 {
                     //if (currentText == string.Empty || kv.Key.StartsWith(currentText, StringComparison.CurrentCultureIgnoreCase))
                     declarations.Add(kv.Value.varDeclaration);
@@ -181,11 +183,12 @@ namespace Babel
             }
 
             //  Add struct declarations
-            foreach (HLSLDeclaration d in Parser.Parser.structDecls)
+            //foreach (HLSLDeclaration d in Parser.Parser.structDecls)
+            foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
             {
                 //if (currentText == string.Empty || d.Name.StartsWith(currentText))
                 {
-                    declarations.Add(d);
+                    declarations.Add(kv.Value.structDecl);
                 }
             }
 
@@ -251,12 +254,12 @@ namespace Babel
             string varType = null;
             if( token != null )
             {
-                Dictionary<string, Parser.Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.Parser.VarDecl>();
-                Parser.Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
+                Dictionary<string, Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.VarDecl>();
+                Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
                 if (curCS == null)
                     curCS = Parser.Parser.programScope;
                 HLSLScopeUtils.GetVarDecls(curCS, vars);
-                foreach (KeyValuePair<string, Parser.Parser.VarDecl> kv in vars)
+                foreach (KeyValuePair<string, Parser.VarDecl> kv in vars)
                 {
                     if (kv.Key.Equals(token))
                     {
@@ -268,8 +271,8 @@ namespace Babel
 
             if (varType != null)
             {
-                Parser.Parser.StructMembers sm;
-                if (Parser.Parser.structMembers.TryGetValue(varType, out sm))
+                Parser.StructMembers sm;
+                if (Parser.Parser.structDecls.TryGetValue(varType, out sm))
                     members.AddRange(sm.structMembers);
             }
 
