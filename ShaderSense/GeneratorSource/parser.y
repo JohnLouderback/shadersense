@@ -160,6 +160,7 @@ SimpleDeclaration
 SemiDeclaration
     : VariableDeclaration						{ /*AddVarAsGlobal();*/ }
     | KWSTRUCT IDENTIFIER StructBlock			{ AddStructType($2); }
+    | KWSTRUCT STRUCTIDENTIFIER StructBlock		{ AddStructType($2); }
     | SamplerType IDENTIFIER '=' SamplerBlock		{ AddVariable($2, $1, @2);
 												  /*AddVarAsGlobal();*/ }
     | KWTYPEDEF Type IDENTIFIER					{ AddTypedefType($2, $3); }

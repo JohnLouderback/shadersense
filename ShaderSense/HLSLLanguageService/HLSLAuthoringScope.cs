@@ -23,13 +23,13 @@ namespace Babel
      */
     public class HLSLAuthoringScope : Microsoft.VisualStudio.Package.AuthoringScope
     {
-        Source _source;
+        HLSLSource _source;
         HLSLFunctions methods;
         object parseResult;
         IASTResolver resolver;
 
         //constructor
-        public HLSLAuthoringScope(Source source)
+        public HLSLAuthoringScope(HLSLSource source)
         {
             this._source = source;
             this.resolver = new HLSLResolver();
@@ -90,7 +90,7 @@ namespace Babel
             }
 
 
-            ((HLSLResolver)resolver)._source = _source;
+            ((HLSLResolver)resolver)._source = (HLSLSource)_source;
             IList<HLSLDeclaration> declarations;
             switch (reason)
             {
@@ -133,7 +133,8 @@ namespace Babel
         //update methods
         public void updateMethods()
         {
-            methods = new HLSLFunctions(new List<HLSLFunction>(Parser.Parser.methods));
+            //methods = new HLSLFunctions(new List<HLSLFunction>(Parser.Parser.methods));
+            methods = new HLSLFunctions(new List<HLSLFunction>(_source.methods));
         }
     }
 }

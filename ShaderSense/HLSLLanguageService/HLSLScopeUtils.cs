@@ -32,10 +32,10 @@ namespace Babel
     class HLSLScopeUtils
     {
         //get the current scope of the cursor
-        public static Parser.CodeScope GetCurrentScope(int line, int col)
+        /*public static Parser.CodeScope GetCurrentScope(int line, int col)
         {
             return GetCurrentScope(Parser.Parser.programScope, line, col);
-        }
+        }*/
 
         public static Parser.CodeScope GetCurrentScope(Parser.CodeScope codeScope, int line, int col)
         {

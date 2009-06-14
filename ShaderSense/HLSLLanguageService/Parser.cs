@@ -97,28 +97,34 @@ namespace Babel.Parser
         const int GLYPHVARIABLE = GLYPHBASE * 23;
         public const int GLYPH_TYPE_FUNCTION = GLYPHBASE * 12;
 
-        public static IList<Babel.HLSLFunction> methods = new List<Babel.HLSLFunction>();
+        //public static IList<Babel.HLSLFunction> methods = new List<Babel.HLSLFunction>();
         private static List<HLSLDeclaration> tempMembers = new List<HLSLDeclaration>();
         private static CodeScope tempCurScope = null;
         private static CodeScope tempLastScope = null;
         private static Dictionary<string, VarDecl> tempFunctionVars = new Dictionary<string, VarDecl>();
-        public static Dictionary<string, VarDecl> globalVars = new Dictionary<string, VarDecl>();
+        //public static Dictionary<string, VarDecl> globalVars = new Dictionary<string, VarDecl>();
 //        public static List<HLSLDeclaration> structDecls = new List<HLSLDeclaration>();
         public static Dictionary<string, StructMembers> structDecls = new Dictionary<string, StructMembers>();
-        public static List<HLSLDeclaration> typedefTypes = new List<HLSLDeclaration>();
-        public static CodeScope programScope;
-        public static Dictionary<TextSpan, string> identNamesLocs = new Dictionary<TextSpan, string>();
-        public static Dictionary<TextSpan, string> funcNamesLocs = new Dictionary<TextSpan, string>();
+        //public static List<HLSLDeclaration> typedefTypes = new List<HLSLDeclaration>();
+        //public static CodeScope programScope;
+        //public static Dictionary<TextSpan, string> identNamesLocs = new Dictionary<TextSpan, string>();
+        //public static Dictionary<TextSpan, string> funcNamesLocs = new Dictionary<TextSpan, string>();
         private static Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
-        public static Dictionary<TextSpan, LexValue> structVars = new Dictionary<TextSpan, LexValue>();
+        //public static Dictionary<TextSpan, LexValue> structVars = new Dictionary<TextSpan, LexValue>();
+
+        public HLSLSource _source;
 
 
         
 
-        public static void PrepareParse(TextSpan programLoc)
+        public void PrepareParse(TextSpan programLoc, Source source)
         {
-            programScope = new CodeScope(programLoc);
-            tempCurScope = programScope;
+            _source = (HLSLSource)source;
+            _source.PrepareParse(programLoc);
+            tempCurScope = _source.programScope;
+
+            //programScope = new CodeScope(programLoc);
+            //tempCurScope = programScope;
         }
 
         public void BeginScope(LexLocation loc)
@@ -181,7 +187,11 @@ namespace Babel.Parser
             }
             HLSLDeclaration structDecl = new HLSLDeclaration("struct", loc.str, GLYPHSTRUCT, loc.str);
 //            structDecls.Add(structDecl);
-            structDecls.Add(loc.str, new StructMembers(loc.str, tempMembers, structDecl));
+            //Need to keep this static member for the initial lex since the source hasn't been created yet,
+            //but really only need it for the names, the sources still keep their own struct decls
+            if(!structDecls.ContainsKey(loc.str))
+                structDecls.Add(loc.str, new StructMembers(loc.str, tempMembers, structDecl));
+            _source.structDecls.Add(loc.str, new StructMembers(loc.str, tempMembers, structDecl));
             tempMembers.Clear();
         }
 
@@ -192,7 +202,8 @@ namespace Babel.Parser
             {
                 return;
             }
-            typedefTypes.Add(new HLSLDeclaration(type.str, newType.str, GLYPHTYPEDEF, newType.str));
+            //typedefTypes.Add(new HLSLDeclaration(type.str, newType.str, GLYPHTYPEDEF, newType.str));
+            _source.typedefTypes.Add(new HLSLDeclaration(type.str, newType.str, GLYPHTYPEDEF, newType.str));
         }
 
         //Creates a list of member variables that are within a struct
@@ -224,7 +235,8 @@ namespace Babel.Parser
                     method.Parameters.Add(parameter);
                 }
             }
-            methods.Add(method);
+            //methods.Add(method);
+            _source.methods.Add(method);
 
             foreach (KeyValuePair<string, VarDecl> kv in tempFunctionVars)
                 tempLastScope.scopeVars.Add(kv.Key, kv.Value);
@@ -245,15 +257,15 @@ namespace Babel.Parser
         public static void clearDeclarations()
         {
 //            Parser.structDecls.Clear();
-            Parser.structDecls.Clear();
-            Parser.typedefTypes.Clear();
-            Parser.methods.Clear();
-            Parser.programScope = null;
-            Parser.globalVars.Clear();
+            //Parser.structDecls.Clear();
+            //Parser.typedefTypes.Clear();
+            //Parser.methods.Clear();
+            //Parser.programScope = null;
+            //Parser.globalVars.Clear();
             Parser.forLoopVars.Clear();
-            Parser.structVars.Clear();
-            Parser.identNamesLocs.Clear();
-            Parser.funcNamesLocs.Clear();
+            //Parser.structVars.Clear();
+            //Parser.identNamesLocs.Clear();
+            //Parser.funcNamesLocs.Clear();
         }
 
         //Determines whether the parser should add declarations or not
@@ -270,15 +282,19 @@ namespace Babel.Parser
 
         public void AddIdentifierToCheck(LexValue identifier, LexLocation idenLoc)
         {
-            identNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
+            //identNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
+            _source.identNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
         }
 
         public void MarkIdentifierAsFunction(LexValue identifier, LexLocation idenLoc)
         {
-            if(identNamesLocs.ContainsKey(MkTSpan(idenLoc)))
-                identNamesLocs.Remove(MkTSpan(idenLoc));
+            //if(identNamesLocs.ContainsKey(MkTSpan(idenLoc)))
+            //    identNamesLocs.Remove(MkTSpan(idenLoc));
+            if (_source.identNamesLocs.ContainsKey(MkTSpan(idenLoc)))
+                  _source.identNamesLocs.Remove(MkTSpan(idenLoc));
 
-            funcNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
+            //funcNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
+            _source.funcNamesLocs.Add(MkTSpan(idenLoc), identifier.str);
         }
 
         //Need to defer the checking of the for loop scope until the scope it is in finishes parsing
@@ -295,7 +311,8 @@ namespace Babel.Parser
                 {
                     CodeScope forscope;
                     string[] typeAndName = assignVal.str.Split(' ');
-                    if (HLSLScopeUtils.HasScopeForSpan(forBody, programScope, out forscope))
+                    //if (HLSLScopeUtils.HasScopeForSpan(forBody, programScope, out forscope))
+                    if (HLSLScopeUtils.HasScopeForSpan(forBody, _source.programScope, out forscope))
                     {
                         forscope.scopeVars.Add(typeAndName[1], new VarDecl(new HLSLDeclaration(typeAndName[0], typeAndName[1], GLYPHVARIABLE, typeAndName[1]), forBody));
                         forscope.scopeLocation = TextSpanHelper.Merge(forHeader, forBody);
@@ -334,7 +351,8 @@ namespace Babel.Parser
         //Used for locating the struct var that precedes the dot that triggered a MemberSelect operation
         public void AddStructVarForCompletion(LexValue varName, LexLocation loc)
         {
-            structVars.Add(MkTSpan(loc), varName);
+            //structVars.Add(MkTSpan(loc), varName);
+            _source.structVars.Add(MkTSpan(loc), varName);
         }
     }
 }

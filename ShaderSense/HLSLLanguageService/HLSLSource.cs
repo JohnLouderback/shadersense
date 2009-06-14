@@ -31,11 +31,11 @@ namespace Babel
 {
     public class HLSLSource : Source
     {
-        CodeScope programScope;
+        public CodeScope programScope;
 
         public IList<Babel.HLSLFunction> methods;
         //TODO: Don't forget to change the reference in lexer.lex
-        public List<HLSLDeclaration> structDecls;
+        public Dictionary<string, StructMembers> structDecls;
         public List<HLSLDeclaration> typedefTypes;
         public Dictionary<TextSpan, string> identNamesLocs;
         public Dictionary<TextSpan, string> funcNamesLocs;
@@ -50,7 +50,7 @@ namespace Babel
         {
             programScope = new CodeScope(programLoc);
             methods = new List<Babel.HLSLFunction>();
-            structDecls = new List<HLSLDeclaration>();
+            structDecls = new Dictionary<string, StructMembers>();
             typedefTypes = new List<HLSLDeclaration>();
             identNamesLocs = new Dictionary<TextSpan, string>();
             funcNamesLocs = new Dictionary<TextSpan, string>();
