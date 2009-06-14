@@ -86,6 +86,11 @@
 	bool IsStructIdent(string text)
 	{
 		//foreach(HLSLDeclaration structIdent in Parser.Parser.structDecls)
+		//foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
+		//if(_source == null || _source.structDecls == null)
+		//	return false;
+
+		//foreach(KeyValuePair<string, Parser.StructMembers> kv in _source.structDecls)
 		foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
 	    {
 			//if( text.Equals(structIdent.Name))

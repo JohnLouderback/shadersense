@@ -54,7 +54,7 @@ namespace Babel
         //parses the source
         public override Microsoft.VisualStudio.Package.AuthoringScope ParseSource(ParseRequest req)
         {
-           Source source = (Source)this.GetSource(req.FileName);
+           HLSLSource source = (HLSLSource)this.GetSource(req.FileName);
            string path = source.GetFilePath();
 
             if( req.Reason == ParseReason.Check )
@@ -75,13 +75,15 @@ namespace Babel
                     {
                         //  Trigger the method start if the trigger was a parameter start
                         KeyValuePair<TextSpan, string> method = new KeyValuePair<TextSpan, string>(new TextSpan(), "");
-                        foreach (KeyValuePair<TextSpan, string> funckv in Parser.Parser.funcNamesLocs)
+                        //foreach (KeyValuePair<TextSpan, string> funckv in Parser.Parser.funcNamesLocs)
+                        foreach (KeyValuePair<TextSpan, string> funckv in source.funcNamesLocs)
                         {
                             if (TextSpanHelper.IsAfterEndOf(funckv.Key, req.Line, req.Col) && TextSpanHelper.StartsAfterEndOf(funckv.Key, method.Key))
                                 method = funckv;
                         }
                         bool isFunction = false;
-                        foreach (HLSLFunction func in Parser.Parser.methods)
+                        //foreach (HLSLFunction func in Parser.Parser.methods)
+                        foreach (HLSLFunction func in source.methods)
                         {
                             if (method.Value.Equals(func.Name))
                             {
@@ -187,15 +189,17 @@ namespace Babel
                 ppEnum.Next(out ppRetval);
             }
 
-            foreach( KeyValuePair<TextSpan, string> identkv in Parser.Parser.identNamesLocs)
+            HLSLSource source = (HLSLSource)this.GetSource(req.FileName);
+            //foreach( KeyValuePair<TextSpan, string> identkv in Parser.Parser.identNamesLocs)
+            foreach (KeyValuePair<TextSpan, string> identkv in source.identNamesLocs)
             {
                 int line, col;
                 line = identkv.Key.iStartLine;
                 col = identkv.Key.iStartIndex;
                 Dictionary<string, Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.VarDecl>();
-                Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
-                if (curCS == null)
-                    curCS = Parser.Parser.programScope;
+                Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(source.programScope, line, col);
+                //if (curCS == null)
+                //    curCS = Parser.Parser.programScope;
                 HLSLScopeUtils.GetVarDecls(curCS, vars);
                 bool isValid = false;
                 foreach (KeyValuePair<string, Parser.VarDecl> kv in vars)
@@ -214,13 +218,15 @@ namespace Babel
                 }
             }
 
-            foreach (KeyValuePair<TextSpan, string> funckv in Parser.Parser.funcNamesLocs)
+            //foreach (KeyValuePair<TextSpan, string> funckv in Parser.Parser.funcNamesLocs)
+            foreach (KeyValuePair<TextSpan, string> funckv in source.funcNamesLocs)
             {
                 int line, col;
                 line = funckv.Key.iStartLine;
                 col = funckv.Key.iStartIndex;
                 bool isValid = false;
-                foreach (HLSLFunction func in Parser.Parser.methods)
+                //foreach (HLSLFunction func in Parser.Parser.methods)
+                foreach (HLSLFunction func in source.methods)
                 {
                     if (func.Name.Equals(funckv.Value))
                     {

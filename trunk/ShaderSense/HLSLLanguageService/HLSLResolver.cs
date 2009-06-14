@@ -35,7 +35,7 @@ namespace Babel
 	public class HLSLResolver : Babel.IASTResolver
 	{
 		#region IASTResolver Members
-        public Source _source;
+        public HLSLSource _source;
 
         private static string[] keywordTypes = { "int", "bool", "float", "half", "double", "uint", 
                                                    "buffer", "vector", "matrix", "texture", "sampler", "void" };
@@ -68,7 +68,8 @@ namespace Babel
             if (!isType)
             {
                 //foreach (HLSLDeclaration decl in Parser.Parser.structDecls)
-                foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
+                //foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
+                foreach (KeyValuePair<string, Parser.StructMembers> kv in _source.structDecls)
                 {
                     //if (prevToken.StartsWith(decl.Name))
                     if(prevToken.StartsWith(kv.Key))
@@ -80,7 +81,8 @@ namespace Babel
             }
             if (!isType)
             {
-                foreach (HLSLDeclaration decl in Parser.Parser.typedefTypes)
+                //foreach (HLSLDeclaration decl in Parser.Parser.typedefTypes)
+                foreach (HLSLDeclaration decl in _source.typedefTypes)
                 {
                     if (prevToken.StartsWith(decl.Name))
                     {
@@ -119,8 +121,8 @@ namespace Babel
 
 
             bool isGlobalScope = false;
-            Parser.CodeScope scope = HLSLScopeUtils.GetCurrentScope(line, col);
-            if (scope == Parser.Parser.programScope)
+            Parser.CodeScope scope = HLSLScopeUtils.GetCurrentScope(_source.programScope, line, col);
+            if (scope == _source.programScope)
                 isGlobalScope = true;
 
             //  Adding predefined keyword commands
@@ -162,7 +164,8 @@ namespace Babel
                 }
 
                 //  Add function declarations
-                foreach (HLSLFunction method in Parser.Parser.methods)
+                //foreach (HLSLFunction method in Parser.Parser.methods)
+                foreach (HLSLFunction method in _source.methods)
                 {
                     //if (currentText == string.Empty || method.Name.StartsWith(currentText, true, null))
                     {
@@ -184,7 +187,8 @@ namespace Babel
 
             //  Add struct declarations
             //foreach (HLSLDeclaration d in Parser.Parser.structDecls)
-            foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
+            //foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
+            foreach (KeyValuePair<string, Parser.StructMembers> kv in _source.structDecls)
             {
                 //if (currentText == string.Empty || d.Name.StartsWith(currentText))
                 {
@@ -193,7 +197,8 @@ namespace Babel
             }
 
             //  Add type definitions
-            foreach (HLSLDeclaration d in Parser.Parser.typedefTypes)
+            //foreach (HLSLDeclaration d in Parser.Parser.typedefTypes)
+            foreach (HLSLDeclaration d in _source.typedefTypes)
             {
                 //if (currentText == string.Empty || d.Name.StartsWith(currentText))
                 {
@@ -244,7 +249,8 @@ namespace Babel
             //foreach (string state in aast.startStates.Keys)
             //    members.Add(new Declaration(state, state, 0, state));
             KeyValuePair<TextSpan, Parser.LexValue> var = new KeyValuePair<TextSpan,Babel.Parser.LexValue>( new TextSpan(), new Babel.Parser.LexValue());
-            foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in Parser.Parser.structVars)
+            //foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in Parser.Parser.structVars)
+            foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in _source.structVars)
             {
                 if( TextSpanHelper.IsAfterEndOf(kv.Key, line, col) && TextSpanHelper.EndsAfterEndOf(kv.Key, var.Key) )
                     var = kv;
@@ -255,9 +261,11 @@ namespace Babel
             if( token != null )
             {
                 Dictionary<string, Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.VarDecl>();
-                Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
-                if (curCS == null)
-                    curCS = Parser.Parser.programScope;
+                //Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(Parser.Parser.programScope, line, col);
+                Parser.CodeScope curCS = HLSLScopeUtils.GetCurrentScope(_source.programScope, line, col);
+                //if (curCS == null)
+                    //curCS = Parser.Parser.programScope;
+                //    curCS = _source.programScope;
                 HLSLScopeUtils.GetVarDecls(curCS, vars);
                 foreach (KeyValuePair<string, Parser.VarDecl> kv in vars)
                 {
@@ -272,7 +280,8 @@ namespace Babel
             if (varType != null)
             {
                 Parser.StructMembers sm;
-                if (Parser.Parser.structDecls.TryGetValue(varType, out sm))
+                //if (Parser.Parser.structDecls.TryGetValue(varType, out sm))
+                if (_source.structDecls.TryGetValue(varType, out sm))
                     members.AddRange(sm.structMembers);
             }
 
@@ -295,7 +304,8 @@ namespace Babel
 		public IList<Babel.HLSLFunction> FindMethods(object result, int line, int col, string name)
 		{
             IList<Babel.HLSLFunction> matchingMethods = new List<Babel.HLSLFunction>();
-            foreach (HLSLFunction method in Parser.Parser.methods)
+            //foreach (HLSLFunction method in Parser.Parser.methods)
+            foreach (HLSLFunction method in _source.methods)
             {
                 if (method.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)) 
                 {
