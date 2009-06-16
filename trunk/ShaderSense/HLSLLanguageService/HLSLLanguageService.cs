@@ -61,6 +61,11 @@ namespace Babel
                 OnIdle(false);
         }
 
+        public override ViewFilter CreateViewFilter(CodeWindowManager mgr, IVsTextView newView)
+        {
+            return new HLSLViewFilter(mgr, newView);
+        }
+
         //parses the source
         public override Microsoft.VisualStudio.Package.AuthoringScope ParseSource(ParseRequest req)
         {
