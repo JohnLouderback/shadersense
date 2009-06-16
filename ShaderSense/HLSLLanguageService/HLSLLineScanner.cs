@@ -125,7 +125,7 @@ namespace Babel
                 }
                 else if (token == (int)paramStartChar)
                 {
-                    tokenInfo.Trigger = TokenTriggers.ParameterStart;
+                    tokenInfo.Trigger = TokenTriggers.ParameterStart | TokenTriggers.MatchBraces;
                 }
                 else if (token == (int)paramNextChar)
                 {
@@ -133,7 +133,7 @@ namespace Babel
                 }
                 else if (token == (int)paramEndChar)
                 {
-                    tokenInfo.Trigger = TokenTriggers.ParameterEnd;
+                    tokenInfo.Trigger = TokenTriggers.ParameterEnd | TokenTriggers.MatchBraces;
                 }
                 else if (token == (int)Tokens.IDENTIFIER)
                 {

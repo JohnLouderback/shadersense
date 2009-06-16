@@ -180,12 +180,6 @@ namespace Babel.Parser
             }
         }
 
-        public void AddFunctionParamVar(LexValue varName, LexValue type, LexLocation loc)
-        {
-            HLSLDeclaration newDecl = new HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
-            tempFunctionVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
-        }
-
         //Adds a struct type and its members
         public void AddStructType(LexValue loc)
         {
@@ -250,6 +244,16 @@ namespace Babel.Parser
                 tempLastScope.scopeVars.Add(kv.Key, kv.Value);
 
             tempFunctionVars.Clear();
+        }
+
+        public void AddFunctionParamVar(LexValue varName, LexValue type, LexLocation loc)
+        {
+            if (!shouldAddDeclarations())
+            {
+                return;
+            }
+            HLSLDeclaration newDecl = new HLSLDeclaration(type.str, varName.str, GLYPHVARIABLE, varName.str);
+            tempFunctionVars.Add(varName.str, new VarDecl(newDecl, MkTSpan(loc)));
         }
 
         //Used by the parser to combine multiple tokens' string values into a single token
