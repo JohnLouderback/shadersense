@@ -28,6 +28,7 @@ using Microsoft.VisualStudio.Package;
 using System.Runtime.InteropServices;
 using Company.ShaderSense;
 using Microsoft.VisualStudio.TextManager.Interop;
+using System.Collections;
 
 namespace Babel
 {
@@ -51,11 +52,24 @@ namespace Babel
             return new HLSLSource(this, buffer, this.GetColorizer(buffer));
         }
 
+        public override void OnCaretMoved(CodeWindowManager mgr, IVsTextView textView, int line, int col)
+        {
+            base.OnCaretMoved(mgr, textView, line, col);
+
+            string text = mgr.Source.GetText(line, col - 1, line, col);
+            if (text.Equals(";"))
+                OnIdle(false);
+        }
+
         //parses the source
         public override Microsoft.VisualStudio.Package.AuthoringScope ParseSource(ParseRequest req)
         {
            HLSLSource source = (HLSLSource)this.GetSource(req.FileName);
            string path = source.GetFilePath();
+
+           string dirtyText = source.GetText(source.DirtySpan);
+           if (req.Reason == ParseReason.MemberSelect && dirtyText.Equals("."))
+               req.Reason = ParseReason.DisplayMemberList;
 
             if( req.Reason == ParseReason.Check )
                 req.Callback = OnParseComplete;
@@ -65,7 +79,7 @@ namespace Babel
                     return new HLSLAuthoringScope(source);
                 case ParseReason.CompleteWord:
 //                case ParseReason.DisplayMemberList:
-//                case ParseReason.MemberSelect:
+                case ParseReason.MemberSelect:
 //                case ParseReason.MemberSelectAndHighlightBraces:
                     return new HLSLAuthoringScope(source);
                 case ParseReason.MethodTip:

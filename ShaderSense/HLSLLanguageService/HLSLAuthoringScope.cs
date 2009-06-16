@@ -91,6 +91,9 @@ namespace Babel
 
 
             ((HLSLResolver)resolver)._source = (HLSLSource)_source;
+            if (_source.IsCompletorActive)
+                return _source.CompletionSet.Declarations;
+
             IList<HLSLDeclaration> declarations;
             switch (reason)
             {
@@ -134,7 +137,8 @@ namespace Babel
         public void updateMethods()
         {
             //methods = new HLSLFunctions(new List<HLSLFunction>(Parser.Parser.methods));
-            methods = new HLSLFunctions(new List<HLSLFunction>(_source.methods));
+            if(_source != null)
+                methods = new HLSLFunctions(new List<HLSLFunction>(_source.methods));
         }
     }
 }

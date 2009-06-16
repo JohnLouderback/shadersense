@@ -25,6 +25,8 @@ using System.Text;
 using System.IO;
 using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.TextManager.Interop;
+using Babel.Parser;
+using System.Collections;
 
 namespace Babel
 {
@@ -43,8 +45,11 @@ namespace Babel
         private static string[] preprocessorTokens = { "#define", "#elif", "#else", "#endif", "#error", "#if",
                                                          "#ifdef", "#ifndef", "#include", "#line", "#undef" };
 
-        private bool ShouldAddDecls(string text, int line, int col)
+        private bool ShouldAddDecls(string text, int line, int col, Dictionary<string, StructMembers> structTypes)
         {
+            if (_source == null)
+                return false;
+
             string lineText = _source.GetText(line, 0, line, col);
             lineText = lineText.Trim();
             if (lineText.Length > 0 && lineText[lineText.Length - 1] == ';')
@@ -69,7 +74,8 @@ namespace Babel
             {
                 //foreach (HLSLDeclaration decl in Parser.Parser.structDecls)
                 //foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
-                foreach (KeyValuePair<string, Parser.StructMembers> kv in _source.structDecls)
+                //foreach (KeyValuePair<string, Parser.StructMembers> kv in _source.structDecls)
+                foreach (KeyValuePair<string, Parser.StructMembers> kv in structTypes)
                 {
                     //if (prevToken.StartsWith(decl.Name))
                     if(prevToken.StartsWith(kv.Key))
@@ -116,7 +122,10 @@ namespace Babel
                 return declarations;
             }*/
 
-            if (!ShouldAddDecls(currentText, line, col))
+            Dictionary<string, StructMembers> structTypes = new Dictionary<string, StructMembers>();
+            _source.GatherStructDecls(structTypes);
+
+            if (!ShouldAddDecls(currentText, line, col, structTypes))
                 return declarations;
 
 
@@ -165,7 +174,9 @@ namespace Babel
 
                 //  Add function declarations
                 //foreach (HLSLFunction method in Parser.Parser.methods)
-                foreach (HLSLFunction method in _source.methods)
+                List<HLSLFunction> allFuncs = new List<HLSLFunction>();
+                _source.GatherFunctions(allFuncs);
+                foreach (HLSLFunction method in allFuncs)
                 {
                     //if (currentText == string.Empty || method.Name.StartsWith(currentText, true, null))
                     {
@@ -175,7 +186,8 @@ namespace Babel
 
                 //  Add variable declarations
                 Dictionary<string, Parser.VarDecl> vars = new Dictionary<string, Babel.Parser.VarDecl>();
-                HLSLScopeUtils.GetVarDecls(scope, vars);
+                _source.GatherVariables(scope, vars);
+                //HLSLScopeUtils.GetVarDecls(scope, vars);
 
                 //Add the variables to the list
                 foreach (KeyValuePair<string, Parser.VarDecl> kv in vars)
@@ -188,7 +200,8 @@ namespace Babel
             //  Add struct declarations
             //foreach (HLSLDeclaration d in Parser.Parser.structDecls)
             //foreach(KeyValuePair<string, Parser.StructMembers> kv in Parser.Parser.structDecls)
-            foreach (KeyValuePair<string, Parser.StructMembers> kv in _source.structDecls)
+            //foreach (KeyValuePair<string, Parser.StructMembers> kv in _source.structDecls)
+            foreach (KeyValuePair<string, Parser.StructMembers> kv in structTypes)
             {
                 //if (currentText == string.Empty || d.Name.StartsWith(currentText))
                 {
@@ -248,14 +261,44 @@ namespace Babel
 
             //foreach (string state in aast.startStates.Keys)
             //    members.Add(new Declaration(state, state, 0, state));
-            KeyValuePair<TextSpan, Parser.LexValue> var = new KeyValuePair<TextSpan,Babel.Parser.LexValue>( new TextSpan(), new Babel.Parser.LexValue());
-            //foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in Parser.Parser.structVars)
-            foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in _source.structVars)
+
+            //int start, end;
+            string token = null;
+            TokenInfo[] info = _source.GetColorizer().GetLineInfo(_source.GetTextLines(), line, _source.ColorState);
+            IEnumerator enumer = info.GetEnumerator();
+            TokenInfo ticur = null;
+            TokenInfo tiprev = null;
+            bool foundDot = false;
+            if (enumer.MoveNext())
             {
-                if( TextSpanHelper.IsAfterEndOf(kv.Key, line, col) && TextSpanHelper.EndsAfterEndOf(kv.Key, var.Key) )
-                    var = kv;
+                ticur = (TokenInfo)enumer.Current;
+                while (enumer.MoveNext())
+                {
+                    tiprev = ticur;
+                    ticur = (TokenInfo)enumer.Current;
+                    if (ticur.Trigger == TokenTriggers.MemberSelect && ticur.Type == TokenType.Operator)
+                    {
+                        foundDot = true;
+                        break;
+                    }
+                }
             }
-            string token = var.Value.str;
+            //bool retval = _source.GetWordExtent(line, col >=3 ? col - 3 : col, WORDEXTFLAGS.WORDEXT_PREVIOUS, out start, out end);
+            if (foundDot && tiprev != null)
+            {
+                token = _source.GetText(line, tiprev.StartIndex, line, tiprev.EndIndex + 1);
+            }
+            else
+            {
+                KeyValuePair<TextSpan, Parser.LexValue> var = new KeyValuePair<TextSpan, Babel.Parser.LexValue>(new TextSpan(), new Babel.Parser.LexValue());
+                //foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in Parser.Parser.structVars)
+                foreach (KeyValuePair<TextSpan, Parser.LexValue> kv in _source.structVars)
+                {
+                    if (TextSpanHelper.IsAfterEndOf(kv.Key, line, col) && TextSpanHelper.EndsAfterEndOf(kv.Key, var.Key))
+                        var = kv;
+                }
+                token = var.Value.str;
+            }
 
             string varType = null;
             if( token != null )
@@ -281,7 +324,10 @@ namespace Babel
             {
                 Parser.StructMembers sm;
                 //if (Parser.Parser.structDecls.TryGetValue(varType, out sm))
-                if (_source.structDecls.TryGetValue(varType, out sm))
+                Dictionary<string, StructMembers> structTypes = new Dictionary<string, StructMembers>();
+                _source.GatherStructDecls(structTypes);
+                //if (_source.structDecls.TryGetValue(varType, out sm))
+                if (structTypes.TryGetValue(varType, out sm))
                     members.AddRange(sm.structMembers);
             }
 
@@ -301,11 +347,13 @@ namespace Babel
 		}
 
         //Find the method with the given name at the location
-		public IList<Babel.HLSLFunction> FindMethods(object result, int line, int col, string name)
+		public IList<HLSLFunction> FindMethods(object result, int line, int col, string name)
 		{
-            IList<Babel.HLSLFunction> matchingMethods = new List<Babel.HLSLFunction>();
+            List<HLSLFunction> matchingMethods = new List<HLSLFunction>();
+            List<HLSLFunction> allFuncs = new List<HLSLFunction>();
+            _source.GatherFunctions(allFuncs);
             //foreach (HLSLFunction method in Parser.Parser.methods)
-            foreach (HLSLFunction method in _source.methods)
+            foreach (HLSLFunction method in allFuncs)
             {
                 if (method.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase)) 
                 {
