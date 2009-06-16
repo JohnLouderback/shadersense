@@ -27,6 +27,10 @@ using Microsoft.VisualStudio.TextManager.Interop;
 using Babel.ParserGenerator;
 using Microsoft.VisualStudio.Package;
 using System.Collections;
+using System.IO;
+using Company.ShaderSense;
+using System.Runtime.InteropServices;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Babel.Parser
 {
@@ -98,10 +102,10 @@ namespace Babel.Parser
         public const int GLYPH_TYPE_FUNCTION = GLYPHBASE * 12;
 
         //public static IList<Babel.HLSLFunction> methods = new List<Babel.HLSLFunction>();
-        private static List<HLSLDeclaration> tempMembers = new List<HLSLDeclaration>();
-        private static CodeScope tempCurScope = null;
-        private static CodeScope tempLastScope = null;
-        private static Dictionary<string, VarDecl> tempFunctionVars = new Dictionary<string, VarDecl>();
+        private List<HLSLDeclaration> tempMembers;
+        private CodeScope tempCurScope = null;
+        private CodeScope tempLastScope = null;
+        private Dictionary<string, VarDecl> tempFunctionVars;
         //public static Dictionary<string, VarDecl> globalVars = new Dictionary<string, VarDecl>();
 //        public static List<HLSLDeclaration> structDecls = new List<HLSLDeclaration>();
         public static Dictionary<string, StructMembers> structDecls = new Dictionary<string, StructMembers>();
@@ -109,7 +113,7 @@ namespace Babel.Parser
         //public static CodeScope programScope;
         //public static Dictionary<TextSpan, string> identNamesLocs = new Dictionary<TextSpan, string>();
         //public static Dictionary<TextSpan, string> funcNamesLocs = new Dictionary<TextSpan, string>();
-        private static Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
+        private Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>> forLoopVars;
         //public static Dictionary<TextSpan, LexValue> structVars = new Dictionary<TextSpan, LexValue>();
 
         public HLSLSource _source;
@@ -122,6 +126,10 @@ namespace Babel.Parser
             _source = (HLSLSource)source;
             _source.PrepareParse(programLoc);
             tempCurScope = _source.programScope;
+
+            tempMembers = new List<HLSLDeclaration>();
+            tempFunctionVars = new Dictionary<string, VarDecl>();
+            forLoopVars = new Dictionary<TextSpan, KeyValuePair<TextSpan, LexValue>>();
 
             //programScope = new CodeScope(programLoc);
             //tempCurScope = programScope;
@@ -262,7 +270,7 @@ namespace Babel.Parser
             //Parser.methods.Clear();
             //Parser.programScope = null;
             //Parser.globalVars.Clear();
-            Parser.forLoopVars.Clear();
+            //Parser.forLoopVars.Clear();
             //Parser.structVars.Clear();
             //Parser.identNamesLocs.Clear();
             //Parser.funcNamesLocs.Clear();
@@ -353,6 +361,45 @@ namespace Babel.Parser
         {
             //structVars.Add(MkTSpan(loc), varName);
             _source.structVars.Add(MkTSpan(loc), varName);
+        }
+
+        public void AddIncludeFile(LexLocation loc)
+        {
+            string incl = _source.GetText(MkTSpan(loc));
+            incl = incl.Replace("\"", "");
+            string inclPath = Path.GetDirectoryName(_source.GetFilePath());
+            string inclFilePath = Path.Combine(inclPath, incl);
+            _source.includeFiles.Add(inclFilePath);
+            LanguageService service = _source.LanguageService;
+            if (File.Exists(inclFilePath))
+            {
+                string text = File.ReadAllText(inclFilePath);
+                IntPtr ptr = IntPtr.Zero;
+                Guid packageGuid = typeof(IVsPackage).GUID;
+                service.GetSite(ref packageGuid, out ptr);
+                ShaderSensePackage package = null;
+                if (ptr != IntPtr.Zero)
+                {
+                    package = (ShaderSensePackage)Marshal.GetObjectForIUnknown(ptr);
+                    Guid clsid = typeof(VsTextBufferClass).GUID;
+                    Guid iid = typeof(IVsTextBuffer).GUID;
+                    VsTextBufferClass textbuffer = (VsTextBufferClass)package.CreateInstance(ref clsid, ref iid, typeof(VsTextBufferClass));
+                    Guid serviceid = typeof(HLSLLanguageService).GUID;
+                    textbuffer.SetLanguageServiceID(ref serviceid);
+                    IVsPersistDocData docdata = textbuffer as IVsPersistDocData;
+                    if (docdata != null)
+                    {
+                        docdata.LoadDocData(inclFilePath);
+                    }
+                    HLSLSource inclSrc = (HLSLSource)service.GetOrCreateSource(textbuffer);
+                    if ((!inclSrc.CompletedFirstParse || inclSrc.IsDirty) && Request.Reason == ParseReason.Check)
+                    {
+                        ParseRequest newReq = service.CreateParseRequest(inclSrc, 0, 0, new TokenInfo(), text, inclFilePath, Request.Reason, null);
+                        service.ParseSource(newReq);
+                        //tempCurScope = _source.programScope;
+                    }
+                }
+            }
         }
     }
 }

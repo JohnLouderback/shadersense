@@ -33,13 +33,15 @@ namespace Babel
     {
         public CodeScope programScope;
 
-        public IList<Babel.HLSLFunction> methods;
+        public List<HLSLFunction> methods;
         //TODO: Don't forget to change the reference in lexer.lex
         public Dictionary<string, StructMembers> structDecls;
         public List<HLSLDeclaration> typedefTypes;
         public Dictionary<TextSpan, string> identNamesLocs;
         public Dictionary<TextSpan, string> funcNamesLocs;
         public Dictionary<TextSpan, LexValue> structVars;
+        public List<string> includeFiles;
+        private Dictionary<string, HLSLSource> allIncludes;
 
         public HLSLSource(HLSLLanguageService service, IVsTextLines textLines, Colorizer colorizer)
 			: base(service, textLines, colorizer)
@@ -49,12 +51,80 @@ namespace Babel
         public void PrepareParse(TextSpan programLoc)
         {
             programScope = new CodeScope(programLoc);
-            methods = new List<Babel.HLSLFunction>();
+            methods = new List<HLSLFunction>();
             structDecls = new Dictionary<string, StructMembers>();
             typedefTypes = new List<HLSLDeclaration>();
             identNamesLocs = new Dictionary<TextSpan, string>();
             funcNamesLocs = new Dictionary<TextSpan, string>();
             structVars = new Dictionary<TextSpan, LexValue>();
+            includeFiles = new List<string>();
         }
+
+        public void GatherIncludes()
+        {
+            allIncludes = new Dictionary<string, HLSLSource>();
+            GatherIncludes(allIncludes);
+        }
+
+        private void GatherIncludes(Dictionary<string, HLSLSource> includes)
+        {
+            foreach (string s in includeFiles)
+            {
+                if (!includes.ContainsKey(s))
+                {
+                    HLSLSource source = (HLSLSource)LanguageService.GetSource(s);
+                    includes.Add(s, source);
+                    source.GatherIncludes(includes);
+                }
+            }
+        }
+
+        public void GatherStructDecls(Dictionary<string, StructMembers> decls)
+        {
+            foreach (KeyValuePair<string, StructMembers> kv in structDecls)
+                decls.Add(kv.Key, kv.Value);
+
+            foreach (KeyValuePair<string, HLSLSource> kv in allIncludes)
+            {
+                foreach (KeyValuePair<string, StructMembers> sm in kv.Value.structDecls)
+                {
+                    if (!decls.ContainsKey(sm.Key))
+                    {
+                        decls.Add(sm.Key, sm.Value);
+                    }
+                }
+            }
+        }
+
+        public void GatherVariables(CodeScope cs, Dictionary<string, Babel.Parser.VarDecl> vars)
+        {
+            HLSLScopeUtils.GetVarDecls(cs, vars);
+
+            foreach (KeyValuePair<string, HLSLSource> kv in allIncludes)
+            {
+                foreach (KeyValuePair<string, VarDecl> decls in kv.Value.programScope.scopeVars)
+                {
+                    if (!vars.ContainsKey(decls.Key))
+                    {
+                        vars.Add(decls.Key, decls.Value);
+                    }
+                }
+            }
+        }
+
+        public void GatherFunctions(List<HLSLFunction> funcs)
+        {
+            foreach (HLSLFunction f in methods)
+                funcs.Add(f);
+
+            foreach (KeyValuePair<string, HLSLSource> kv in allIncludes)
+            {
+                foreach (HLSLFunction fun in kv.Value.methods)
+                {
+                    funcs.Add(fun);
+                }
+            }
+        }
+
     }
 }

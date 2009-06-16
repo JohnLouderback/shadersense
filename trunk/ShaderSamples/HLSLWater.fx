@@ -5,6 +5,7 @@
 // Description: Renders water using a normal map refraction technique
 // Disclaimer: Use this however you want, but I am not responsible for anything
 //////////////////////////////////////////////////////////////////////////////////////////////////
+#include "myinclude.fx"
 sampler mysamp : register( R0 );
 float4x4 WorldViewProj; //World * View * Projection
 float4x4 TexTransform;  //Texture transformation matrix

@@ -92,16 +92,20 @@ namespace Babel
             bool yyparseResult = false;
 
 #if GARRETT
-            System.IO.StreamWriter myStream;
-            myStream = new System.IO.StreamWriter("E:/Users/Garrett/Documents/Projects/ShaderSense/myOutput.txt");
-            Console.SetError(myStream);
+            System.IO.StreamWriter myStream = null;
+            if (req.View != null)
+            {
+                myStream = new System.IO.StreamWriter("E:/Users/Garrett/Documents/Projects/ShaderSense/myOutput.txt");
+                Console.SetError(myStream);
+            }
 #endif
 			// req.DirtySpan seems to be set even though no changes have occurred
 			// source.IsDirty also behaves strangely
 			// might be possible to use source.ChangeCount to sync instead
 
             if (req.DirtySpan.iStartIndex != req.DirtySpan.iEndIndex
-                || req.DirtySpan.iStartLine != req.DirtySpan.iEndLine)
+                || req.DirtySpan.iStartLine != req.DirtySpan.iEndLine
+                || source.IsDirty)
 			{
                 Babel.Parser.ErrorHandler handler = new Babel.Parser.ErrorHandler();
                 Babel.Lexer.Scanner scanner = new Babel.Lexer.Scanner(); // string interface
@@ -117,6 +121,7 @@ namespace Babel
                 //Parser.Parser.PrepareParse(source.GetDocumentSpan(), source);
                 parser.PrepareParse(source.GetDocumentSpan(), source);
                 yyparseResult = parser.Parse();
+                ((HLSLSource)source).GatherIncludes();
 
 				// store the parse results
                 // source.ParseResult = aast;
@@ -160,7 +165,8 @@ namespace Babel
 					break;
 			}
 #if GARRETT
-            myStream.Close();
+            if(myStream != null)
+                myStream.Close();
 #endif
 
 //			return new AuthoringScope(source.ParseResult);
